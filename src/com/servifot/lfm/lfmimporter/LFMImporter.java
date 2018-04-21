@@ -21,49 +21,38 @@ import javafx.stage.Stage;
 
 
 public class LFMImporter extends Application implements ViewListener{
-	
+
 	/** Ruta de recursos css de la aplicación */
 	private static final String RESOURCE_PATH_CSS = "/com/servifot/lfm/css";
 	/** Ruta de recursos de imágenes de la aplicación */
 	public static final String RESOURCE_PATH_IMAGES = "/com/servifot/lfm/images";
-	
+
 	/** Carpeta del programa en el directorio del usuario */
 	public static final String USER_FOLDER = System.getProperty("user.home")+"/.lfmimporter";
 	/** Fichero de parametros de configuración del kiosco */
 	public static final String USER_CONFIGURATION = USER_FOLDER+"/lfmimporter.ini";
 	/** */
 	public static final String USER_IMAGESFOLDER = USER_FOLDER + "/cameraImages";
-	
+
 	/** Ancho de la ventana */
 	public static final int SCREEN_WIDTH = 675;
 	/** Alto de la ventana */
 	public static final int SCREEN_HEIGHT = 1080;
 	/** Espacio para el menú inferior */
 	public static final int SCREEN_THUMBS_HEIGHT = 250;
-	
-	
-	/** Ruta con el archivo de configuración */
-	private static String Config_Path = "";
+
 	/** Configuración del programa */
 	private static LFMConfig s_config = null;
 	/** Carpeta con los recursos gráficos de la aplicación */
 	private static File s_graphicsFolder = null;
-	
+
 	/** Contenedor principal de layout de la ventana de la aplicación */
 	private BorderPane m_root = null;
 	/** Gestor principal de layout de la ventana de la aplicación */
 	private StackPane m_stackRoot = null;
-	
-	public static void main (String[] args) { 
-		
-		// Buscamos el archivo de configuración en los parámetros
-		if (args.length < 1) {
-			System.err.println("No tengo el archivo de configuración");
-			return;
-		} else {
-			Config_Path = args[0];
-		}
-		
+
+	public static void main (String[] args) {
+
 		if (!initFolders()) {
 			System.err.println("No es posible inicializar las carpetas de trabajo.");
 			return;
@@ -77,25 +66,25 @@ public class LFMImporter extends Application implements ViewListener{
 			System.err.println("No se puede preparar los recursos gráficos del programa.");
 			return;
 		}
-		
+
 		System.out.println("********************************");
 		System.out.println("********* ¡ARRANCAMOS! *********");
 		System.out.println("********************************");
-		
+
 		launch(args);
-		
+
 	}
-	
+
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 		m_root = new BorderPane();
 		m_stackRoot = new StackPane();
 		m_root.setCenter(m_stackRoot);
 		Scene scene = new Scene(m_root);
-		
+
 		primaryStage.setTitle("La Foto Mochila");
 		primaryStage.setWidth(675);
 		primaryStage.setHeight(1080);
@@ -105,20 +94,20 @@ public class LFMImporter extends Application implements ViewListener{
 		primaryStage.setFullScreenExitHint("Para salir, ves a la configuración");
 		primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 		primaryStage.setScene(scene);
-		
+
 		MainView mainview = new MainView();
 		changeView(mainview);
-		
+
 		primaryStage.show();
 	}
-	
+
 	/**
 	 * Cambia la pantalla activa de la aplicación.
-	 * 
+	 *
 	 * @param view Nueva pantalla a mostrar
 	 */
 	private void changeView(View view) {
-		
+
 		// Eliminamos los ficheros CSS que pudiese haber
 		m_root.getScene().getStylesheets().clear();
 
@@ -127,48 +116,48 @@ public class LFMImporter extends Application implements ViewListener{
 
 		addView(view);
 	}
-	
+
 	/**
 	 * Añade una ventana activa a la aplicación.
-	 * 
+	 *
 	 * @param view Nueva pantalla a superponer
 	 */
 	private void addView(View view) {
 		// Pasamos referencia a la view principal para que añada a su lista de Listeners
 		view.addListener(this);
 		//view.setMainApp(this);
-		
+
 		// Cargamos los ficheros de estilo
 		String cssBaseName = view.getCssName();
 		chargeCss(cssBaseName);
-		
+
 		Pane nextPane = view.getPane();
 		m_stackRoot.getChildren().add(nextPane);
 		// Al finalizar la carga de la nueva vista se ejecuta la función por si la vista necesita ejecutar alguna función más
 		view.onLoad();
 	}
-	
+
 	/**
 	 * Carga los ficheros CSS por defecto y según la especificación del usuario
-	 * 
+	 *
 	 * @param cssBaseName Ruta al fichero de estilos
 	 * @return	<code>true</code> en caso de poderse cargar algún fichero de estilo<br>
 	 *  <code>false</code> si no puede cargar ningún fichero de estilos
 	 */
 	private boolean chargeCss(String cssBaseName){
-		
+
 		boolean chargedFlag = false;
-		
+
 		// Cargamos el fichero de estilos correspondiente
 		File cssFile = new File(s_graphicsFolder.getAbsolutePath()+"/css/"+cssBaseName+".css");
 		if (cssFile.isFile()) {
 			m_root.getScene().getStylesheets().add("file:///"+cssFile.getAbsolutePath().replace("\\","/"));
 			chargedFlag = true;
 		}
-		
+
 		return chargedFlag;
-	} 
-	
+	}
+
 	@Override
 	public void stop() {
 		if (s_graphicsFolder != null && s_graphicsFolder.isDirectory()) {
@@ -176,7 +165,7 @@ public class LFMImporter extends Application implements ViewListener{
 			System.out.println("Eliminada la carpeta temporal con los archivos del programa");
 		}
 	}
-	
+
 	/**
 	 * Elmina la carpeta actual con los archivos gráficos de la aplicación,
 	 * y la de otras ejecuciones si no se han borrado correctamente.
@@ -184,30 +173,30 @@ public class LFMImporter extends Application implements ViewListener{
 	private void deleteGraphicsFolder() {
 		File partegraphics = s_graphicsFolder.getParentFile();
 		FileUtils.deleteFolder(s_graphicsFolder, true);
-		
+
 		for (File f : partegraphics.listFiles()) {
 			if (f.isDirectory() && f.getName().contains("estilo")) {
 				FileUtils.deleteFolder(f, true);
 			}
 		}
-		
+
 	}
-	
+
 	/**
 	 * Devuelve la configuración cargada. SI no estaba cargada la carga.
-	 * 
+	 *
 	 * @return configuración del programa
 	 */
 	public static LFMConfig getConfig() {
 		if (s_config == null) {
-			s_config = new LFMConfig(Config_Path);
+			s_config = new LFMConfig(USER_CONFIGURATION);
 		}
 		return s_config;
 	}
-	
+
 	/**
 	 * Inicializa las carpetas de trabajo de la aplicación.
-	 * 
+	 *
 	 * @return  <code>true</code> si se completa correctamente, <code>false</code> en caso contrario
 	 */
 	private static boolean initFolders() {
@@ -217,21 +206,21 @@ public class LFMImporter extends Application implements ViewListener{
 			System.err.println("No es posible crear la carpeta de datos de usuario " + userFolder.getAbsolutePath());
 			return false;
 		}
-		
+
 		// Crea la carpeta donde van las imágenes de la cámara
 		File cameraFolder = new File(getConfig().getCameraFolder());
 		if (!FileUtils.createFolder(cameraFolder)) {
 			System.err.println("No es posible crear la carpeta de la cámara " + userFolder.getAbsolutePath());
 			return false;
 		}
-		
+
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * Crea una carpeta para almacenar las clases con los estilos.
-	 * 
+	 *
 	 * @return El archivo que representa la carpeta o null si no la puede crear.
 	 */
 	public static File getGraphicsFolder() {
@@ -243,7 +232,7 @@ public class LFMImporter extends Application implements ViewListener{
 				graphicsPath = USER_FOLDER + "/estilos_" + i;
 				i++;
 			}
-			
+
 			tempGraphicsFolder = new File(graphicsPath);
 			if (!tempGraphicsFolder.mkdirs()) {
 				return null;
@@ -252,25 +241,25 @@ public class LFMImporter extends Application implements ViewListener{
 			System.err.println("Error creando la carpeta de los estilos " + e.getMessage());
 			return null;
 		}
-		
+
 		return tempGraphicsFolder;
 	}
-	
+
 	/**
 	 * Extrae los ficheros de diseño (CSS e imágenes) contenidos en los recursos de la aplicación.
-	 * 
+	 *
 	 * @param folder Carpeta donde extraer los ficheros de diseño
 	 * @return <code>true</code> si se extraen correctamente, <code>false</code> en caso contrario
 	 */
 	private static boolean extractGraphicsResources(File folder) {
-		
+
 		// Preparamos carpetas donde extraer los recursos
 		File cssFolder = new File(folder.getAbsolutePath()+"/css");
 		if (!FileUtils.createFolder(cssFolder)) {
 			System.err.println("No se puede crear la carpeta "+cssFolder.getAbsolutePath());
 			return false;
 		}
-		File imagesFolder = new File(folder.getAbsolutePath()+"/images"); 
+		File imagesFolder = new File(folder.getAbsolutePath()+"/images");
 		if (!FileUtils.createFolder(imagesFolder)) {
 			System.err.println("No se puede crear la carpeta "+imagesFolder.getAbsolutePath());
 			return false;
@@ -282,21 +271,21 @@ public class LFMImporter extends Application implements ViewListener{
 		}
 		if (!ResourceUtils.extractResourceFolder(LFMImporter.class, RESOURCE_PATH_IMAGES, imagesFolder)) {
 			return false;
-		}		
+		}
 
 		return true;
 	}
-	
-	
+
+
 	public static void searchWifi() {
 		Runtime rt = Runtime.getRuntime();
-		
+
 		try {
 			Object lock = new Object();
 			String s = "";
-			
+
 			while (true) {
-			
+
 				// Detenemos el wifi
 				Process pr = rt.exec("netsh interface set interface name=\"Wi-Fi\" admin=disabled");
 				BufferedReader br1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -308,9 +297,9 @@ public class LFMImporter extends Application implements ViewListener{
 				pr.waitFor();
 
 				// Arrancamos el wifi
-				pr = rt.exec("netsh interface set interface name=\"Wi-Fi\" admin=enabled");	
+				pr = rt.exec("netsh interface set interface name=\"Wi-Fi\" admin=enabled");
 				pr.waitFor();
-				
+
 				boolean interfazfound = false;
 				boolean encontrado = false;
 				while (!interfazfound) {
@@ -319,7 +308,7 @@ public class LFMImporter extends Application implements ViewListener{
 					BufferedReader br2 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 					pr.waitFor();
 					System.out.println("Buscamos flashair...");
-					
+
 					while ((s = br2.readLine()) != null) {
 						if (s.toLowerCase().contains("no hay")) {
 							System.out.println("No hay ninguna interfaz, esperamos 1 segundo...");
@@ -340,21 +329,21 @@ public class LFMImporter extends Application implements ViewListener{
 						}
 						s = "";
 					}
-				
+
 					if (encontrado) {
 						System.out.println("HEMOS ENCONTRADO EL WIFI");
 					}
 				}
-				
+
 				//pr.waitFor();
-				
+
 				if (!encontrado) {
 					System.out.println("Start wait...");
 					synchronized(lock) {
 					// write your code here. You may use wait() or notify() as per your requirement.
 					    lock.wait(2000);
 					}
-					
+
 					System.out.println("Stop wait\n\n");
 				} else {
 					System.out.println("Vamos a conectarnos...");
@@ -367,10 +356,10 @@ public class LFMImporter extends Application implements ViewListener{
 						if (s.toLowerCase().contains("correctamente")) {
 							System.out.println(s);
 							System.out.println("***ESTAMOS CONECTADOS. FIN***");
-						} 
+						}
 						s = "";
 					}
-					
+
 					String fotopath = "//flashair/DavWWWRoot/DCIM/100CANON/IMG_0229.JPG";
 					File img = new File(fotopath);
 					for (int i = 0; i < 10 && !img.exists(); i++) {
@@ -390,7 +379,7 @@ public class LFMImporter extends Application implements ViewListener{
 				}
 
 			}
-		
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -400,21 +389,21 @@ public class LFMImporter extends Application implements ViewListener{
 	@Override
 	public void onAddedViewFinished() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
 	@Override
 	public void onAddView(View nextView) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
 	@Override
 	public void onViewFinished(View nextView) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
