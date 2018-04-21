@@ -5,20 +5,22 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 
-import javax.print.attribute.standard.PrinterMoreInfoManufacturer;
-
 import com.servifot.lfm.utils.FileUtils;
 import com.servifot.lfm.utils.ResourceUtils;
+import com.servifot.lfm.views.MainView;
+import com.servifot.lfm.views.View;
+import com.servifot.lfm.views.ViewListener;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 
-public class LFMImporter extends Application {
+public class LFMImporter extends Application implements ViewListener{
 	
 	/** Ruta de recursos css de la aplicación */
 	private static final String RESOURCE_PATH_CSS = "/com/servifot/lfm/css";
@@ -27,8 +29,18 @@ public class LFMImporter extends Application {
 	
 	/** Carpeta del programa en el directorio del usuario */
 	public static final String USER_FOLDER = System.getProperty("user.home")+"/.lfmimporter";
+	/** Fichero de parametros de configuración del kiosco */
+	public static final String USER_CONFIGURATION = USER_FOLDER+"/lfmimporter.ini";
 	/** */
 	public static final String USER_IMAGESFOLDER = USER_FOLDER + "/cameraImages";
+	
+	/** Ancho de la ventana */
+	public static final int SCREEN_WIDTH = 675;
+	/** Alto de la ventana */
+	public static final int SCREEN_HEIGHT = 1080;
+	/** Espacio para el menú inferior */
+	public static final int SCREEN_THUMBS_HEIGHT = 250;
+	
 	
 	/** Ruta con el archivo de configuración */
 	private static String Config_Path = "";
@@ -94,7 +106,91 @@ public class LFMImporter extends Application {
 		primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 		primaryStage.setScene(scene);
 		
+		MainView mainview = new MainView();
+		changeView(mainview);
+		
 		primaryStage.show();
+	}
+	
+	/**
+	 * Cambia la pantalla activa de la aplicación.
+	 * 
+	 * @param view Nueva pantalla a mostrar
+	 */
+	private void changeView(View view) {
+		
+		// Eliminamos los ficheros CSS que pudiese haber
+		m_root.getScene().getStylesheets().clear();
+
+		// Cambiamos el contenido del control principal de la aplicación
+		m_stackRoot.getChildren().clear();
+
+		addView(view);
+	}
+	
+	/**
+	 * Añade una ventana activa a la aplicación.
+	 * 
+	 * @param view Nueva pantalla a superponer
+	 */
+	private void addView(View view) {
+		// Pasamos referencia a la view principal para que añada a su lista de Listeners
+		view.addListener(this);
+		//view.setMainApp(this);
+		
+		// Cargamos los ficheros de estilo
+		String cssBaseName = view.getCssName();
+		chargeCss(cssBaseName);
+		
+		Pane nextPane = view.getPane();
+		m_stackRoot.getChildren().add(nextPane);
+		// Al finalizar la carga de la nueva vista se ejecuta la función por si la vista necesita ejecutar alguna función más
+		view.onLoad();
+	}
+	
+	/**
+	 * Carga los ficheros CSS por defecto y según la especificación del usuario
+	 * 
+	 * @param cssBaseName Ruta al fichero de estilos
+	 * @return	<code>true</code> en caso de poderse cargar algún fichero de estilo<br>
+	 *  <code>false</code> si no puede cargar ningún fichero de estilos
+	 */
+	private boolean chargeCss(String cssBaseName){
+		
+		boolean chargedFlag = false;
+		
+		// Cargamos el fichero de estilos correspondiente
+		File cssFile = new File(s_graphicsFolder.getAbsolutePath()+"/css/"+cssBaseName+".css");
+		if (cssFile.isFile()) {
+			m_root.getScene().getStylesheets().add("file:///"+cssFile.getAbsolutePath().replace("\\","/"));
+			chargedFlag = true;
+		}
+		
+		return chargedFlag;
+	} 
+	
+	@Override
+	public void stop() {
+		if (s_graphicsFolder != null && s_graphicsFolder.isDirectory()) {
+			deleteGraphicsFolder();
+			System.out.println("Eliminada la carpeta temporal con los archivos del programa");
+		}
+	}
+	
+	/**
+	 * Elmina la carpeta actual con los archivos gráficos de la aplicación,
+	 * y la de otras ejecuciones si no se han borrado correctamente.
+	 */
+	private void deleteGraphicsFolder() {
+		File partegraphics = s_graphicsFolder.getParentFile();
+		FileUtils.deleteFolder(s_graphicsFolder, true);
+		
+		for (File f : partegraphics.listFiles()) {
+			if (f.isDirectory() && f.getName().contains("estilo")) {
+				FileUtils.deleteFolder(f, true);
+			}
+		}
+		
 	}
 	
 	/**
@@ -298,6 +394,27 @@ public class LFMImporter extends Application {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+
+	@Override
+	public void onAddedViewFinished() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onAddView(View nextView) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void onViewFinished(View nextView) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

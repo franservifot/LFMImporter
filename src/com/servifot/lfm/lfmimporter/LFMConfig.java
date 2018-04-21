@@ -27,7 +27,7 @@ public class LFMConfig {
 	private String m_configFile = "";
 	
 	/** Carpeta donde van las fotos */
-	private String m_cameraFolder = LFMImporter.USER_FOLDER+"/cameraFolder";
+	private String m_cameraFolder = LFMImporter.USER_IMAGESFOLDER;
 	
 	/**
 	 * Ruta del archivo de configuración
@@ -45,6 +45,11 @@ public class LFMConfig {
 	 * @param path
 	 */
 	private void load(String path) {
+		if (!new File(path).exists()) {
+			System.err.println("En load la ruta [" +path + "] no corresponde a ningún archivo");
+			System.err.println("Se cargará la ruta por defecto [" + LFMImporter.USER_CONFIGURATION +"]");
+			path = LFMImporter.USER_CONFIGURATION;
+		}
 		try {
 			IniParser ini = new IniParser(path, Charset.forName("UTF-8"));
 			
@@ -53,8 +58,7 @@ public class LFMConfig {
 			
 			
 		} catch (Exception e) {
-			System.err.println("Error cargando la configuración");
-			e.printStackTrace();
+			System.err.println("Error cargando la configuración" + e.getMessage());
 		}
 	}
 	

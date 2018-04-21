@@ -1,0 +1,13 @@
+.mainview-lbl {
+	-fx-text-fill:red;
+}
+
+.mv-centerbox {
+	-fx-alignment: top-center;
+	-fx-background-color: darkgray;
+	
+}
+
+.mv-rootpane {
+	-fx-background-color: black;
+}
