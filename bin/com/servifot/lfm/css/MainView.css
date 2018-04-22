@@ -1,13 +1,68 @@
-.mainview-lbl {
-	-fx-text-fill:red;
-}
 
+/* Caja de la imagen en grande */
 .mv-centerbox {
-	-fx-alignment: top-center;
-	-fx-background-color: darkgray;
-	
+	-fx-alignment: center;
+	-fx-background-color: black;
+
 }
 
 .mv-rootpane {
 	-fx-background-color: black;
+}
+
+
+
+/* Estilo de las miniaturas */
+.thumbnailwidget {
+	-fx-alignment: center ;
+	-fx-background-radius: 50px;
+
+}
+.mv-btnsBox {
+	-fx-spacing: 25px; /* Distancia entre los botones */
+	-fx-alignment: center ;
+	-fx-min-width: 80px ;
+	-fx-max-width: 80px ;
+	-fx-pref-width: 80px ;
+}
+.mv-sp {
+	-fx-focus-color: transparent;
+	-fx-background-color: black;
+}
+.mv-tp {
+	-fx-hgap: 8px;
+	-fx-vgap: 8px;
+	-fx-background-color: black;
+}
+
+/*****************/
+/** Scroll pane **/
+/*****************/
+.mv-sp .scroll-bar:horizontal ,
+.mv-sp  .scroll-bar:vertical{
+    -fx-background-color:transparent;
+
+}
+
+.mv-sp .scroll-bar:horizontal .thumb,
+.mv-sp .scroll-bar:vertical .thumb {
+    -fx-background-color:green;
+	/*-fx-background-insets: 0, 0, 0;*/
+	/*-fx-background-radius: 0em;*/
+}
+
+.mv-sp .scroll-bar:horizontal .track ,
+.mv-sp .scroll-bar:vertical .track{
+     -fx-background-color: transparent;
+}
+
+/* The increment and decrement button CSS class of scrollbar */
+.mv-sp .increment-button , .mv-sp .decrement-button {
+    -fx-background-color:transparent;
+}
+
+.mv-sp  .scroll-bar .increment-arrow,
+.mv-sp  .scroll-bar .decrement-arrow {
+	-fx-shape: " ";
+	-fx-padding:1px;
 }

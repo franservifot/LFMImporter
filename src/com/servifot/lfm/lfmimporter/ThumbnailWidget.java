@@ -2,9 +2,12 @@ package com.servifot.lfm.lfmimporter;
 
 import java.io.File;
 
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 
 public class ThumbnailWidget extends VBox {
 
@@ -14,16 +17,25 @@ public class ThumbnailWidget extends VBox {
 	public ThumbnailWidget(File imagefile) {
 		m_imagefile = imagefile;
 
-		ImageView iv = new ImageView();
-		iv.setFitHeight(LFMImporter.SCREEN_THUMBS_HEIGHT);
-		iv.setFitWidth(LFMImporter.SCREEN_THUMBS_HEIGHT);
-		iv.setPreserveRatio(true);
+		Canvas iv = new Canvas(LFMImporter.SCREEN_THUMBS_HEIGHT, LFMImporter.SCREEN_THUMBS_HEIGHT);
 
 		if(m_imagefile.isFile()) {
-			iv.setImage(new Image("file:///" + imagefile.getAbsolutePath()));
+			Image img = new Image("file:///"+m_imagefile.getAbsolutePath());
+			Rectangle imgrectangle = new Rectangle(0, 0, img.getWidth(), img.getHeight());
+			Rectangle canvasRectangle = new Rectangle(0, 0, LFMImporter.SCREEN_THUMBS_HEIGHT, LFMImporter.SCREEN_THUMBS_HEIGHT);
+			Rectangle imgSource = imgrectangle; // TODO FILL THIS RECTANGLES
+			iv.getGraphicsContext2D().drawImage(img, imgSource.getX(), imgSource.getY(), imgSource.getWidth(), imgSource.getHeight(), canvasRectangle.getX(), canvasRectangle.getY(), canvasRectangle.getWidth(), canvasRectangle.getHeight());
 		}
-
+		getStyleClass().add("thumbnailwidget");
 		getChildren().add(iv);
+
+		this.setOnMouseClicked(new EventHandler<Event>() {
+
+			@Override
+			public void handle(Event event) {
+				emitThumbPresed();
+			}
+		});
 	}
 
 	public void emitThumbPresed() {
@@ -37,5 +49,4 @@ public class ThumbnailWidget extends VBox {
 	public interface ThumbnailWidgetListener {
 		public void onThumbPresed(File file);
 	}
-
 }

@@ -35,11 +35,11 @@ public class LFMImporter extends Application implements ViewListener{
 	public static final String USER_IMAGESFOLDER = USER_FOLDER + "/cameraImages";
 
 	/** Ancho de la ventana */
-	public static final int SCREEN_WIDTH = 675;
+	public static final int SCREEN_WIDTH = 594;
 	/** Alto de la ventana */
-	public static final int SCREEN_HEIGHT = 1080;
+	public static final int SCREEN_HEIGHT = 950;
 	/** Espacio para el menú inferior */
-	public static final int SCREEN_THUMBS_HEIGHT = 250;
+	public static final int SCREEN_THUMBS_HEIGHT = 150;
 
 	/** Configuración del programa */
 	private static LFMConfig s_config = null;
@@ -86,8 +86,8 @@ public class LFMImporter extends Application implements ViewListener{
 		Scene scene = new Scene(m_root);
 
 		primaryStage.setTitle("La Foto Mochila");
-		primaryStage.setWidth(675);
-		primaryStage.setHeight(1080);
+		primaryStage.setWidth(SCREEN_WIDTH);
+		primaryStage.setHeight(SCREEN_HEIGHT);
 		primaryStage.setX(0);
 		primaryStage.setY(0);
 		//primaryStage.setFullScreen(true);
