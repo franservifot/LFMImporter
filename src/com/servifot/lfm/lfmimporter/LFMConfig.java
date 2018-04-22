@@ -23,11 +23,23 @@ import com.servifot.lfm.utils.IniParser;
  */
 public class LFMConfig {
 	
+	// CARPETAS
 	/** Carpeta de configuracion */
 	private String m_configFile = "";
-	
 	/** Carpeta donde van las fotos */
 	private String m_cameraFolder = LFMImporter.USER_IMAGESFOLDER;
+	/** Carpeta desde donde sacar las fotos */
+	private String m_sourceFolder = "\\\\flashair\\DavWWWRoot\\";
+	
+	// WIFI
+	/** Interfaz que se usa para buscar redes disponibles (Se apaga y enciende) */
+	private String m_searchInterface = "Wi-Fi";
+	/** Nombre del perfil de la red con el que se conecta */
+	private String m_wifiSDName = "flashair";
+	/** SSID del wifi que genera la carpeta */
+	private String m_wifiSDSSID = "flashair";
+	/** Interfaz que se usa para conectarse a la tarjeta SD */
+	private String m_conectSDInterface = "Wi-Fi";
 	
 	/**
 	 * Ruta del archivo de configuración
@@ -55,7 +67,12 @@ public class LFMConfig {
 			
 			// Cargamos los datos
 			m_cameraFolder = ini.getString("Settings", "cameraFolder", m_cameraFolder);
+			m_sourceFolder = ini.getString("Settings", "sourceFolder", m_sourceFolder);
 			
+			m_searchInterface = ini.getString("Wifi", "searchInterface", m_searchInterface);
+			m_wifiSDName = ini.getString("Wifi", "wifiSDName", m_wifiSDName);
+			m_wifiSDSSID = ini.getString("Wifi", "wifiSDSSID", m_wifiSDSSID);
+			m_conectSDInterface = ini.getString("Wifi", "conectSDInterface", m_conectSDInterface);
 			
 		} catch (Exception e) {
 			System.err.println("Error cargando la configuración" + e.getMessage());
@@ -84,6 +101,13 @@ public class LFMConfig {
 			
 			out.write("[Settings]" + br);
 			out.write("cameraFolder=" + m_cameraFolder + br);
+			out.write("sourceFolder=" + m_sourceFolder + br);
+			
+			out.write("[Wifi]" + br);
+			out.write("searchInterface=" + m_searchInterface + br);
+			out.write("wifiSDName=" + m_wifiSDName + br);
+			out.write("wifiSDSSID=" + m_wifiSDSSID + br);
+			out.write("conectSDInterface=" + m_conectSDInterface + br);
 			
 			out.close();
 			
@@ -101,6 +125,45 @@ public class LFMConfig {
 	public void setCameraFolder(String cameraFolder) {
 		m_cameraFolder = cameraFolder;
 	}
-	
-	
+
+	public String getSourceFolder() {
+		return m_sourceFolder;
+	}
+
+	public void setSourceFolder(String sourceFolder) {
+		m_sourceFolder = sourceFolder;
+	}
+
+	public String getSearchInterface() {
+		return m_searchInterface;
+	}
+
+	public void setSearchInterface(String searchInterface) {
+		m_searchInterface = searchInterface;
+	}
+
+	public String getWifiSDName() {
+		return m_wifiSDName;
+	}
+
+	public void setWifiSDName(String wifiSDName) {
+		m_wifiSDName = wifiSDName;
+	}
+
+	public String getWifiSDSSID() {
+		return m_wifiSDSSID;
+	}
+
+	public void setWifiSDSSID(String wifiSDSSID) {
+		m_wifiSDSSID = wifiSDSSID;
+	}
+
+	public String getConectSDInterface() {
+		return m_conectSDInterface;
+	}
+
+	public void setConectSDInterface(String conectSDInterface) {
+		m_conectSDInterface = conectSDInterface;
+	}
+
 }

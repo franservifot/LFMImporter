@@ -400,8 +400,8 @@ public class FileUtils {
 
 			result = true;
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			System.out.println("Error al copiar " + orig.getAbsolutePath() + " en " + dest.getAbsolutePath());
+			System.err.println(ex.getMessage());
+			System.err.println("Error al copiar " + orig.getAbsolutePath() + " en " + dest.getAbsolutePath());
 			result = false;
 		}
 

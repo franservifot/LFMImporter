@@ -34,6 +34,11 @@ public class LFMImporter extends Application implements ViewListener{
 	/** */
 	public static final String USER_IMAGESFOLDER = USER_FOLDER + "/cameraImages";
 
+	/** Número de la posición central de las ventanas superpuestas  */
+	private static final int Z_ORDER_MIDDLE = 1;
+	/** Número de la posición mas alta de las ventanas superpuestas  */
+	private static final int Z_ORDER_TOP = 2;
+	
 	/** Ancho de la ventana */
 	public static final int SCREEN_WIDTH = 594;
 	/** Alto de la ventana */
@@ -388,21 +393,28 @@ public class LFMImporter extends Application implements ViewListener{
 
 	@Override
 	public void onAddedViewFinished() {
-		// TODO Auto-generated method stub
+		if (m_stackRoot.getChildren().size() == Z_ORDER_MIDDLE+1) {
+			m_stackRoot.getChildren().remove(Z_ORDER_MIDDLE);
+			
+		} else if (m_stackRoot.getChildren().size() == Z_ORDER_TOP+1) {
+			m_stackRoot.getChildren().remove(Z_ORDER_TOP);
+			
+		} else if (m_stackRoot.getChildren().size()>2){
+			m_stackRoot.getChildren().remove(m_stackRoot.getChildren().size()-1); // Se intenta eliminar la ventan
+		}
 
 	}
 
 
 	@Override
 	public void onAddView(View nextView) {
-		// TODO Auto-generated method stub
-
+		addView(nextView);
 	}
 
 
 	@Override
 	public void onViewFinished(View nextView) {
-		// TODO Auto-generated method stub
+		changeView(nextView);
 
 	}
 

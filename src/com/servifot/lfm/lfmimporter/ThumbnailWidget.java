@@ -2,6 +2,8 @@ package com.servifot.lfm.lfmimporter;
 
 import java.io.File;
 
+import com.servifot.lfm.utils.LFMUtils;
+
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
@@ -23,7 +25,8 @@ public class ThumbnailWidget extends VBox {
 			Image img = new Image("file:///"+m_imagefile.getAbsolutePath());
 			Rectangle imgrectangle = new Rectangle(0, 0, img.getWidth(), img.getHeight());
 			Rectangle canvasRectangle = new Rectangle(0, 0, LFMImporter.SCREEN_THUMBS_HEIGHT, LFMImporter.SCREEN_THUMBS_HEIGHT);
-			Rectangle imgSource = imgrectangle; // TODO FILL THIS RECTANGLES
+			Rectangle imgSource = LFMUtils.fitRectangle(imgrectangle, canvasRectangle);
+			//Rectangle imgSource = LFMUtils.fitRectangle(canvasRectangle, imgrectangle);
 			iv.getGraphicsContext2D().drawImage(img, imgSource.getX(), imgSource.getY(), imgSource.getWidth(), imgSource.getHeight(), canvasRectangle.getX(), canvasRectangle.getY(), canvasRectangle.getWidth(), canvasRectangle.getHeight());
 		}
 		getStyleClass().add("thumbnailwidget");
