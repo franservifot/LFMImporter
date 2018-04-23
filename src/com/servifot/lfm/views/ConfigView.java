@@ -1,7 +1,10 @@
 package com.servifot.lfm.views;
 
 import com.servifot.lfm.lfmimporter.LFMImporter;
+import com.servifot.lfm.utils.LFMUtils;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -41,7 +44,9 @@ public class ConfigView extends View {
 		
 		// WIFI
 		Label searchInterfacelbl = new Label("Interfaz de búsqueda: ");
-		ComboBox<String> searchInterfazCb = new ComboBox<>();//TODO SET OBSERVABLELIST
+		ObservableList<String> searchInterfazList = FXCollections.observableArrayList();
+		LFMUtils.fillWifiInterfaces(searchInterfazList);
+		ComboBox<String> searchInterfazCb = new ComboBox<>(searchInterfazList);//TODO SET OBSERVABLELIST
 		searchInterfazCb.setValue(LFMImporter.getConfig().getSearchInterface());
 		HBox searchInterfazBox = new HBox(HSPACE, searchInterfacelbl, searchInterfazCb);
 		
@@ -49,12 +54,14 @@ public class ConfigView extends View {
 		TextField wifinametf = new TextField(LFMImporter.getConfig().getWifiSDName());
 		HBox wifinamebox = new HBox(HSPACE, wifinamelbl, wifinametf);
 		
-		Label wifissidlbl = new Label("Perfil wifi: ");
+		Label wifissidlbl = new Label("SSID wifi: ");
 		TextField wifissidtf = new TextField(LFMImporter.getConfig().getWifiSDSSID());
 		HBox wifissidbox = new HBox(HSPACE, wifissidlbl, wifissidtf);
 		
 		Label connectInterfacelbl = new Label("Interfaz de búsqueda: ");
-		ComboBox<String> connectInterfazCb = new ComboBox<>();//TODO SET OBSERVABLELIST
+		ObservableList<String> connectInterfazList = FXCollections.observableArrayList();
+		LFMUtils.fillWifiInterfaces(connectInterfazList);
+		ComboBox<String> connectInterfazCb = new ComboBox<>(connectInterfazList);//TODO SET OBSERVABLELIST
 		connectInterfazCb.setValue(LFMImporter.getConfig().getConectSDInterface());
 		HBox connectInterfazBox = new HBox(HSPACE, connectInterfacelbl, connectInterfazCb);
 		
@@ -68,8 +75,8 @@ public class ConfigView extends View {
 		
 		HBox btnsBox = new HBox(HSPACE, minimBtn, fullscreenBtn, closeBtn);
 		
-		Button accepts = new Button("Aceptar");
-		Button cancel = new Button("Cancelar");
+		Button accepts = new Button("Aplicar");
+		Button cancel = new Button("Volver");
 		
 		HBox acceptcancelbox = new HBox(HSPACE, accepts, cancel);
 		
@@ -81,6 +88,20 @@ public class ConfigView extends View {
 			@Override
 			public void handle(ActionEvent event) {
 				emitAddedViewFinished();
+			}
+		});
+		accepts.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				LFMImporter.getConfig().setCameraFolder(carpetaImatgespathLbl.getText());
+				LFMImporter.getConfig().setSourceFolder(carpetaOrigentf.getText());
+				
+				LFMImporter.getConfig().setSearchInterface(searchInterfazCb.getValue());
+				LFMImporter.getConfig().setWifiSDName(wifinametf.getText());
+				LFMImporter.getConfig().setWifiSDSSID(wifissidtf.getText());
+				LFMImporter.getConfig().setConectSDInterface(connectInterfazCb.getValue());
+				
+				LFMImporter.getConfig().save();
 			}
 		});
 		

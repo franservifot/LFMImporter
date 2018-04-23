@@ -64,5 +64,5 @@
 .mv-sp  .scroll-bar .increment-arrow,
 .mv-sp  .scroll-bar .decrement-arrow {
 	-fx-shape: " ";
-	-fx-padding:1px;
+	-fx-padding:4px;
 }

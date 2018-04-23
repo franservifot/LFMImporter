@@ -4,6 +4,7 @@ import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import com.servifot.lfm.utils.FileUtils;
 import com.servifot.lfm.utils.ResourceUtils;
@@ -20,7 +21,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 
-public class LFMImporter extends Application implements ViewListener{
+public class LFMImporter extends Application implements ViewListener {
 
 	/** Ruta de recursos css de la aplicación */
 	private static final String RESOURCE_PATH_CSS = "/com/servifot/lfm/css";
@@ -55,6 +56,8 @@ public class LFMImporter extends Application implements ViewListener{
 	private BorderPane m_root = null;
 	/** Gestor principal de layout de la ventana de la aplicación */
 	private StackPane m_stackRoot = null;
+	
+	private ArrayList<LFMImporterListener> m_listeners = new ArrayList<>();
 
 	public static void main (String[] args) {
 
@@ -101,6 +104,7 @@ public class LFMImporter extends Application implements ViewListener{
 		primaryStage.setScene(scene);
 
 		MainView mainview = new MainView();
+		m_listeners.add(mainview);
 		changeView(mainview);
 
 		primaryStage.show();
@@ -165,6 +169,7 @@ public class LFMImporter extends Application implements ViewListener{
 
 	@Override
 	public void stop() {
+		emitStop();
 		if (s_graphicsFolder != null && s_graphicsFolder.isDirectory()) {
 			deleteGraphicsFolder();
 			System.out.println("Eliminada la carpeta temporal con los archivos del programa");
@@ -417,6 +422,25 @@ public class LFMImporter extends Application implements ViewListener{
 		changeView(nextView);
 
 	}
-
-
+	
+	private void emitStop() {
+		if (m_listeners != null & !m_listeners.isEmpty()) {
+			for (LFMImporterListener listener : m_listeners) {
+				listener.onStop();
+			}
+		}
+	}
+	
+	public void addListener(LFMImporterListener listener) {
+		if(m_listeners == null) m_listeners = new ArrayList<>();
+		
+		m_listeners.add(listener);
+	}
+	
+	public interface LFMImporterListener {
+		/**
+		 * Indica que se está cerrando la aplicación
+		 */
+		public void onStop();
+	}
 }

@@ -5,7 +5,8 @@ import java.io.InputStreamReader;
 
 public class WifiSDConector extends Thread {
 	
-	public WifiSDConectorListener m_listener = null;
+	private WifiSDConectorListener m_listener = null;
+	private boolean m_killed = false;
 	
 	public WifiSDConector() {}
 	
@@ -17,7 +18,7 @@ public class WifiSDConector extends Thread {
 			String s = "";
 			boolean sdConection = false;
 			
-			while (!sdConection) {
+			while (!sdConection && !m_killed) {
 				// Detenemos el wifi
 				Process pr = rt.exec("netsh interface set interface name=\"" + LFMImporter.getConfig().getSearchInterface() + "\" admin=disabled");
 				BufferedReader br1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -27,14 +28,17 @@ public class WifiSDConector extends Thread {
 					s = "";
 				}
 				pr.waitFor();
-				
+				br1.close();
+				if (m_killed) return;
 				// Arrancamos el wifi
 				pr = rt.exec("netsh interface set interface name=\"" + LFMImporter.getConfig().getSearchInterface() + "\" admin=enabled");
 				pr.waitFor();
+				if (m_killed) return;
 				
 				boolean interfazfound = false;
 				boolean encontrado = false;
 				while (!interfazfound) {
+					if (m_killed) return;
 					// Buscamos si está disponible el wifi
 					pr = rt.exec("netsh wlan show networks");
 					BufferedReader br2 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -61,7 +65,8 @@ public class WifiSDConector extends Thread {
 						}
 						s = "";
 					}
-
+					br2.close();
+					if (m_killed) return;
 					if (encontrado) {
 						System.out.println("HEMOS ENCONTRADO EL WIFI");
 					}
@@ -72,13 +77,17 @@ public class WifiSDConector extends Thread {
 					System.out.println("Start wait...");
 					synchronized(lock) {
 						lock.wait(2000);
+						if (m_killed) return;
 					}
 
 					System.out.println("Stop wait\n\n");
 				} else {
 				// Si encontramos el wifi nos conectamos
 					System.out.println("Vamos a conectarnos...");
-					pr = rt.exec("netsh wlan connect name="+LFMImporter.getConfig().getWifiSDName()+" ssid="+LFMImporter.getConfig().getWifiSDSSID()+" interface="+LFMImporter.getConfig().getConectSDInterface()+"");
+					if (m_killed) return;
+					String comand = "netsh wlan connect name=\""+LFMImporter.getConfig().getWifiSDName()+"\" ssid=\""+LFMImporter.getConfig().getWifiSDSSID()+"\" interface=\""+LFMImporter.getConfig().getConectSDInterface()+"\"";
+					System.out.println(comand);
+					pr = rt.exec(comand);
 					BufferedReader br3 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 					pr.waitFor();
 					while ((s = br3.readLine()) != null) {
@@ -90,7 +99,7 @@ public class WifiSDConector extends Thread {
 						}
 						s = "";
 					}
-
+					br3.close();
 //					String fotopath = "//flashair/DavWWWRoot/DCIM/100CANON/IMG_0229.JPG";
 //					File img = new File(fotopath);
 //					for (int i = 0; i < 10 && !img.exists(); i++) {
@@ -116,6 +125,7 @@ public class WifiSDConector extends Thread {
 			e.printStackTrace();
 			//TODO DEAL WITH EXCEPTIONS
 		}
+		m_killed = true;
 	}
 	
 	public void setListener(WifiSDConectorListener listener) {
@@ -129,6 +139,15 @@ public class WifiSDConector extends Thread {
 	
 	public interface WifiSDConectorListener {
 		public void onSDConnection();
+	}
+
+	public void kill() {
+		m_killed = true;
+		
+	}
+
+	public boolean isKilled() {
+		return m_killed;
 	}
 	
 }
