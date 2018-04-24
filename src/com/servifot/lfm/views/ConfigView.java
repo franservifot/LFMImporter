@@ -1,8 +1,12 @@
 package com.servifot.lfm.views;
 
+import java.io.File;
+import java.io.IOException;
+
 import com.servifot.lfm.lfmimporter.LFMImporter;
 import com.servifot.lfm.utils.LFMUtils;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,6 +19,8 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
 
 public class ConfigView extends View {
 	private static final String CSS_NAME = "ConfigView";
@@ -34,11 +40,17 @@ public class ConfigView extends View {
 		Button carpetaImatgesOpenbtn = new Button("Abrir");
 		HBox carpetaImatgesBox = new HBox(HSPACE, carpetaImatgesLbl, carpetaImatgespathLbl, carpetaImatgesSelectbtn, carpetaImatgesOpenbtn);
 		
+		Label carpetaPrinterLbl = new Label("Carpeta impresión: ");
+		TextField carpetaPrinterpathLbl = new TextField(LFMImporter.getConfig().getPrinterFolder());
+		Button carpetaPrinterSelectbtn = new Button("Seleccionar");
+		Button carpetaPrinterOpenbtn = new Button("Abrir");
+		HBox carpetaPrinterBox = new HBox(HSPACE, carpetaPrinterLbl, carpetaPrinterpathLbl, carpetaPrinterSelectbtn, carpetaPrinterOpenbtn);
+		
 		Label carpetaOrigenlbl = new Label("Carpeta origen: ");
 		TextField carpetaOrigentf = new TextField(LFMImporter.getConfig().getSourceFolder());
 		HBox carpetaOrigenBox = new HBox(HSPACE, carpetaOrigenlbl, carpetaOrigentf);
 		
-		VBox carpetasBox = new VBox(VSPACE, carpetaImatgesBox, carpetaOrigenBox);
+		VBox carpetasBox = new VBox(VSPACE, carpetaImatgesBox, carpetaPrinterBox, carpetaOrigenBox);
 		
 		TitledPane carpetasTP = new TitledPane("Carpetas", carpetasBox);
 		
@@ -72,6 +84,7 @@ public class ConfigView extends View {
 		Button minimBtn = new Button("Minimizar");
 		Button fullscreenBtn = new Button("Full screen");
 		Button closeBtn = new Button("Cerrar");
+		closeBtn.getStyleClass().add("cv-close-btn");
 		
 		HBox btnsBox = new HBox(HSPACE, minimBtn, fullscreenBtn, closeBtn);
 		
@@ -90,10 +103,12 @@ public class ConfigView extends View {
 				emitAddedViewFinished();
 			}
 		});
+		// Guarda la información 
 		accepts.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 				LFMImporter.getConfig().setCameraFolder(carpetaImatgespathLbl.getText());
+				LFMImporter.getConfig().setPrinterFolder(carpetaPrinterpathLbl.getText());
 				LFMImporter.getConfig().setSourceFolder(carpetaOrigentf.getText());
 				
 				LFMImporter.getConfig().setSearchInterface(searchInterfazCb.getValue());
@@ -102,6 +117,77 @@ public class ConfigView extends View {
 				LFMImporter.getConfig().setConectSDInterface(connectInterfazCb.getValue());
 				
 				LFMImporter.getConfig().save();
+			}
+		});
+		// Cierra la aplicación
+		closeBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				Platform.exit();
+			}
+		});
+		
+		// Pantalla completa
+		fullscreenBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				Stage stage = (Stage) fullscreenBtn.getScene().getWindow();
+				stage.setFullScreen(!stage.isFullScreen());
+			}
+		});
+		
+		// Minimiza la ventana
+		minimBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				Stage stage = (Stage) fullscreenBtn.getScene().getWindow();
+				stage.setIconified(true);
+			}
+		});
+		
+		// Selecionar carpeta donde caen las fotos
+		carpetaImatgesSelectbtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				DirectoryChooser folderc = new DirectoryChooser();
+				File cameraFolder = folderc.showDialog(carpetaImatgesOpenbtn.getScene().getWindow());
+				if (cameraFolder != null && cameraFolder.isDirectory()) {
+					carpetaImatgespathLbl.setText(cameraFolder.getAbsolutePath());
+				}
+			}
+		});
+		
+		carpetaImatgesOpenbtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				try {
+					Runtime.getRuntime().exec("explorer.exe " + (carpetaImatgespathLbl.getText()).replaceAll("/", "\\\\"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		// Selecionar carpeta donde caen las fotos
+		carpetaPrinterSelectbtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				DirectoryChooser folderc = new DirectoryChooser();
+				File cameraFolder = folderc.showDialog(carpetaPrinterOpenbtn.getScene().getWindow());
+				if (cameraFolder != null && cameraFolder.isDirectory()) {
+					carpetaPrinterpathLbl.setText(cameraFolder.getAbsolutePath());
+				}
+			}
+		});
+		
+		carpetaPrinterOpenbtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				try {
+					Runtime.getRuntime().exec("explorer.exe " + (carpetaPrinterpathLbl.getText()).replaceAll("/", "\\\\"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 		

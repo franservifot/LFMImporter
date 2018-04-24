@@ -41,7 +41,6 @@
 .mv-sp .scroll-bar:horizontal ,
 .mv-sp  .scroll-bar:vertical{
     -fx-background-color:transparent;
-
 }
 
 .mv-sp .scroll-bar:horizontal .thumb,

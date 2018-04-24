@@ -24,7 +24,7 @@ import javafx.stage.Stage;
 public class LFMImporter extends Application implements ViewListener {
 
 	/** Ruta de recursos css de la aplicación */
-	private static final String RESOURCE_PATH_CSS = "/com/servifot/lfm/css";
+	public static final String RESOURCE_PATH_CSS = "/com/servifot/lfm/css";
 	/** Ruta de recursos de imágenes de la aplicación */
 	public static final String RESOURCE_PATH_IMAGES = "/com/servifot/lfm/images";
 
@@ -32,8 +32,11 @@ public class LFMImporter extends Application implements ViewListener {
 	public static final String USER_FOLDER = System.getProperty("user.home")+"/.lfmimporter";
 	/** Fichero de parametros de configuración del kiosco */
 	public static final String USER_CONFIGURATION = USER_FOLDER+"/lfmimporter.ini";
-	/** */
+	/** Ruta POR DEFECTO de la carpeta de imagenes de usuario */
 	public static final String USER_IMAGESFOLDER = USER_FOLDER + "/cameraImages";
+	/** Ruta POR DEFECTO de la carpeta de imagenes para imprimir */
+	public static final String USER_PRINTERFOLDER = USER_FOLDER + "/printerImages";
+	
 
 	/** Número de la posición central de las ventanas superpuestas  */
 	private static final int Z_ORDER_MIDDLE = 1;
@@ -223,6 +226,12 @@ public class LFMImporter extends Application implements ViewListener {
 			System.err.println("No es posible crear la carpeta de la cámara " + userFolder.getAbsolutePath());
 			return false;
 		}
+		
+		File printerFolder = new File(getConfig().getPrinterFolder());
+		if (!FileUtils.createFolder(printerFolder)) {
+			System.err.println("No es posible crear la carpeta de la impresora " + userFolder.getAbsolutePath());
+			return false;
+		}
 
 		return true;
 	}
@@ -262,7 +271,9 @@ public class LFMImporter extends Application implements ViewListener {
 	 * @return <code>true</code> si se extraen correctamente, <code>false</code> en caso contrario
 	 */
 	private static boolean extractGraphicsResources(File folder) {
-
+		
+		System.out.println("Extrayendo recursos gráficos");
+		
 		// Preparamos carpetas donde extraer los recursos
 		File cssFolder = new File(folder.getAbsolutePath()+"/css");
 		if (!FileUtils.createFolder(cssFolder)) {
@@ -277,6 +288,7 @@ public class LFMImporter extends Application implements ViewListener {
 
 		// Extraemos todos los recursos
 		if (!ResourceUtils.extractResourceFolder(LFMImporter.class, RESOURCE_PATH_CSS, cssFolder)) {
+			System.out.println("Error sacando CSS");
 			return false;
 		}
 		if (!ResourceUtils.extractResourceFolder(LFMImporter.class, RESOURCE_PATH_IMAGES, imagesFolder)) {
@@ -443,4 +455,5 @@ public class LFMImporter extends Application implements ViewListener {
 		 */
 		public void onStop();
 	}
+
 }

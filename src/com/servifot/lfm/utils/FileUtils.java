@@ -190,7 +190,8 @@ public class FileUtils {
 	}
 
 	/**
-	 * Crea una carpeta y, si fuera necesario, toda la ruta hasta llegar a ella
+	 * Crea una carpeta y, si fuera necesario, toda la ruta hasta llegar a ella.
+	 * Si ya existe la carpeta, no hace nada.
 	 * 
 	 * @param folder
 	 *            - Carpeta a crear

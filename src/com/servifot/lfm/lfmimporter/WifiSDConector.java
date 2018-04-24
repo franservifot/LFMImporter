@@ -7,6 +7,8 @@ public class WifiSDConector extends Thread {
 	
 	private WifiSDConectorListener m_listener = null;
 	private boolean m_killed = false;
+	/** Indica que se activa la busqueda porque no se puede acceder a la carpeta */
+	private boolean m_unableAccess = false;
 	
 	public WifiSDConector() {}
 	
@@ -19,6 +21,27 @@ public class WifiSDConector extends Thread {
 			boolean sdConection = false;
 			
 			while (!sdConection && !m_killed) {
+				// Primero comprobamos si ya estamos conectados al wifi que queremos.
+				if (!m_unableAccess) {
+					String consultcmd = "netsh wlan show interfaces";
+					Process prcmd = rt.exec(consultcmd);
+					BufferedReader br0 = new BufferedReader(new InputStreamReader(prcmd.getInputStream()));
+					System.out.println("Buscamos a que wifi estamos conectados");
+					boolean wificonected = false;
+					while ((s = br0.readLine()) != null && !wificonected) {
+						if (s.toLowerCase().contains("ssid")) {
+							wificonected = true;
+							try {
+								String conectedssid = s.split(":")[1].trim();
+								if (conectedssid.equals(LFMImporter.getConfig().getWifiSDSSID())) {
+									emitSDConection();
+									return;
+								}
+							} catch (Exception e) {}
+						}
+					}
+					System.out.println("No estabamos conectados al wifi deseado...");
+				}
 				// Detenemos el wifi
 				Process pr = rt.exec("netsh interface set interface name=\"" + LFMImporter.getConfig().getSearchInterface() + "\" admin=disabled");
 				BufferedReader br1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
@@ -140,10 +163,17 @@ public class WifiSDConector extends Thread {
 	public interface WifiSDConectorListener {
 		public void onSDConnection();
 	}
+	
+	public boolean isUnableAccess() {
+		return m_unableAccess;
+	}
+
+	public void setUnableAccess(boolean unableAccess) {
+		m_unableAccess = unableAccess;
+	}
 
 	public void kill() {
 		m_killed = true;
-		
 	}
 
 	public boolean isKilled() {

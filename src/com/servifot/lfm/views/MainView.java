@@ -219,7 +219,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		}
 		
 		System.out.println("No se ha podido acceder a la carpeta. Revisamos la conexión wifi");
-		startWifi();
+		startWifi(true);
 	}
 	
 	private void addImages(ArrayList<File> sourceImages, File destFolder) {
@@ -258,7 +258,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 	private ArrayList<File> getAllImages(File sourcefolder) {
 		boolean found = false;
 		ArrayList<File> jpgs = null;
-		for (int i = 0; i < 3 && !found; i++) {
+		for (int i = 0; i < 10 && !found; i++) {
 			System.out.println("DEBUG: Exists");
 			if (sourcefolder.exists()) {
 				System.out.println("DEBUG: FIN Exists");
@@ -269,7 +269,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 				try {
 					Object lock = new Object();
 					synchronized(lock) {
-						lock.wait(1000);
+						lock.wait(1500);
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -305,6 +305,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 	private void addImagesRecursively(File[] f, ArrayList<File> jpgs) {
 		if (f == null) {
 			System.err.println("f es null");
+			m_importingError = true;
 			return;
 		}
 		for (File file : f) {
@@ -336,7 +337,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 	/**
 	 * Deten el hilo que se conecta al wifi (si estuviese activo) y arranca uno nuevo
 	 */
-	public void startWifi() {
+	public void startWifi(boolean unableaccess) {
 		m_importingError = false;
 		m_die = false;
 		if (m_wifiConector != null && !m_wifiConector.isKilled()) {
@@ -344,6 +345,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		}
 		m_wifiConector = new WifiSDConector();
 		m_wifiConector.setListener(this);
+		m_wifiConector.setUnableAccess(unableaccess);
 		m_wifiConector.start();
 	}
 	
@@ -354,7 +356,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 	
 	@Override
 	public void onLoad() {
-		startWifi();
+		startWifi(false);
 	}
 
 	@Override

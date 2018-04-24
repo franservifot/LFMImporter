@@ -28,6 +28,8 @@ public class LFMConfig {
 	private String m_configFile = "";
 	/** Carpeta donde van las fotos */
 	private String m_cameraFolder = LFMImporter.USER_IMAGESFOLDER;
+	/** Carpeta donde van las fotos para imprimir */
+	private String m_printerFolder = LFMImporter.USER_PRINTERFOLDER;
 	/** Carpeta desde donde sacar las fotos */
 	private String m_sourceFolder = "\\\\flashair\\DavWWWRoot\\";
 	
@@ -67,6 +69,7 @@ public class LFMConfig {
 			
 			// Cargamos los datos
 			m_cameraFolder = ini.getString("Settings", "cameraFolder", m_cameraFolder);
+			m_printerFolder = ini.getString("Settings", "printerFolder", m_printerFolder);
 			m_sourceFolder = ini.getString("Settings", "sourceFolder", m_sourceFolder);
 			
 			m_searchInterface = ini.getString("Wifi", "searchInterface", m_searchInterface);
@@ -101,6 +104,7 @@ public class LFMConfig {
 			
 			out.write("[Settings]" + br);
 			out.write("cameraFolder=" + m_cameraFolder + br);
+			out.write("printerFolder=" + m_printerFolder + br);
 			out.write("sourceFolder=" + m_sourceFolder + br);
 			
 			out.write("[Wifi]" + br);
@@ -124,6 +128,14 @@ public class LFMConfig {
 
 	public void setCameraFolder(String cameraFolder) {
 		m_cameraFolder = cameraFolder;
+	}
+	
+	public void setPrinterFolder(String printerFolder) {
+		m_printerFolder = printerFolder;
+	}
+	
+	public String getPrinterFolder() {
+		return m_printerFolder;
 	}
 
 	public String getSourceFolder() {
@@ -165,5 +177,6 @@ public class LFMConfig {
 	public void setConectSDInterface(String conectSDInterface) {
 		m_conectSDInterface = conectSDInterface;
 	}
+
 
 }

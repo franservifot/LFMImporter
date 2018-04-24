@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -61,6 +63,7 @@ public class ResourceUtils {
 	 */
 	public static boolean extractResourceFile(Class<?> clazz, String resourcePath, String outPath) {
 		InputStream is = clazz.getResourceAsStream(resourcePath);
+		System.out.println("I am extractResourceFile");
 		if (is == null) return false;
 		OutputStream os = null;
 		try {
@@ -93,15 +96,26 @@ public class ResourceUtils {
 	 *  <code>false</code> en caso contrario
 	 */
 	public static boolean extractResourceFolder(Class<?> clazz, String path, File folder) {
-		String[] resources = ResourceUtils.listResources(LFMImporter.class, path);
-		for (String resource : resources) {
-			if (resource.equals("")) {
-				continue;
+		String[] resources = ResourceUtils.listResources(clazz, path);
+		System.out.println("Extrayendo recursos. Encontrados: " + resources.length);
+		if (resources.length > 0) {
+			for (String resource : resources) {
+				if (resource.equals("")) {
+					continue;
+				}
+				if (!ResourceUtils.extractResourceFile(clazz, path+"/"+resource, folder.getAbsolutePath()+"/"+resource)) {
+					System.err.println("No se puede extraer el recurso: "+path+"/"+resource);
+					return false;
+				}
 			}
-			if (!ResourceUtils.extractResourceFile(LFMImporter.class, path+"/"+resource, folder.getAbsolutePath()+"/"+resource)) {
-				System.err.println("No se puede extraer el recurso: "+path+"/"+resource);
-				return false;
-			}
+		} else {
+//			InputStream link = clazz.getResourceAsStream(path);
+//			try {
+//				Files.copy(link, folder.toPath());
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 		
 		return true;
@@ -121,12 +135,15 @@ public class ResourceUtils {
 	  */
 	private static String[] getResourceListing(Class<?> clazz, String path) throws URISyntaxException, IOException {
 		URL dirURL = clazz.getClassLoader().getResource(path);
+		
 		if (dirURL != null && dirURL.getProtocol().equals("file")) {
+			System.out.println(dirURL.getFile());
 			/* A file path: easy enough */
 			return new File(dirURL.toURI()).list();
 		} 
 		
 		if (dirURL == null) {
+			System.out.println("DIRURL IS NULL");
 			/* 
 			 * In case of a jar file, we can't actually find a directory.
 			 * Have to assume the same jar as clazz.
