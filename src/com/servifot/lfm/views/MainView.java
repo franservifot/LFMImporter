@@ -12,6 +12,7 @@ import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import com.servifot.lfm.lfmimporter.FolderPrinter;
 import com.servifot.lfm.lfmimporter.LFMImporter;
 import com.servifot.lfm.lfmimporter.ThumbnailWidget;
 import com.servifot.lfm.lfmimporter.ThumbnailWidget.ThumbnailWidgetListener;
@@ -59,9 +60,11 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 
 	/** Rotación actual de la imagen */
 	private int m_rotation = 0;
+	/** Hilo que se conecta al wifi de la SD */
+	private WifiSDConector m_wifiConector = null;
+	/** Hilo que gestiona la impresión de una carpeta */
+	private FolderPrinter m_folderprinter = null;
 	
-	private WifiSDConector m_wifiConector = null; 
-
 	public MainView() {
 		super();
 	}
@@ -348,21 +351,40 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		m_wifiConector.setUnableAccess(unableaccess);
 		m_wifiConector.start();
 	}
-	
+	/** Detiene el buscadoor del wifi */
 	public void stopWifi() {
 		if (m_wifiConector != null) m_wifiConector.kill();
 		m_wifiConector = null;
 	}
 	
+	/** Arranca la impresión */
+	private void startPrinter() {
+		 if (m_folderprinter != null) {
+			 m_folderprinter.kill();
+		 } else if (m_folderprinter == null || m_folderprinter.isDie()) {
+			 m_folderprinter = new FolderPrinter(new File(LFMImporter.getConfig().getPrinterFolder()));
+		 }
+		 m_folderprinter.start();
+	}
+	
+	private void stopPrinter() {
+		if (m_folderprinter != null) m_folderprinter.kill();
+		m_folderprinter = null;
+	}
+	
 	@Override
 	public void onLoad() {
-		startWifi(false);
+		//startWifi(false);
+		startPrinter();
 	}
+	
+	
 
 	@Override
 	public void onStop() {
 		m_die = true;
 		stopWifi();
+		stopPrinter();
 	}
 	
 }

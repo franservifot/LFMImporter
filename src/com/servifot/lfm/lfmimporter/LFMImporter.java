@@ -177,6 +177,7 @@ public class LFMImporter extends Application implements ViewListener {
 			deleteGraphicsFolder();
 			System.out.println("Eliminada la carpeta temporal con los archivos del programa");
 		}
+		WifiSDConector.startWifi();
 	}
 
 	/**

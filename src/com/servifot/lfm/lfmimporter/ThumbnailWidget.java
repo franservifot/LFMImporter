@@ -1,8 +1,10 @@
 package com.servifot.lfm.lfmimporter;
 
 import java.io.File;
+import java.io.IOException;
 
 import com.servifot.lfm.utils.LFMUtils;
+import com.servifot.lfm.views.JPEGMetadata;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -22,7 +24,21 @@ public class ThumbnailWidget extends VBox {
 		Canvas iv = new Canvas(LFMImporter.SCREEN_THUMBS_HEIGHT, LFMImporter.SCREEN_THUMBS_HEIGHT);
 
 		if(m_imagefile.isFile()) {
-			Image img = new Image("file:///"+m_imagefile.getAbsolutePath());
+			// Probamos de cargar la miniatura
+			JPEGMetadata prevjpg = null;
+			try {
+				prevjpg = new JPEGMetadata(imagefile.getAbsolutePath());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Image img = null;
+			if (prevjpg != null && prevjpg.hasThumbnail()) {
+				img = new Image(prevjpg.getThumbnailAsInputStream());
+			} else {
+				img = new Image("file:///"+m_imagefile.getAbsolutePath());	
+			}
+			
 			Rectangle imgrectangle = new Rectangle(0, 0, img.getWidth(), img.getHeight());
 			Rectangle canvasRectangle = new Rectangle(0, 0, LFMImporter.SCREEN_THUMBS_HEIGHT, LFMImporter.SCREEN_THUMBS_HEIGHT);
 			Rectangle imgSource = LFMUtils.fitRectangle(imgrectangle, canvasRectangle);

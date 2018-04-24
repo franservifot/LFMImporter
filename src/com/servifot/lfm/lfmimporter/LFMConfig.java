@@ -11,6 +11,10 @@ import java.util.Calendar;
 
 import com.servifot.lfm.utils.IniParser;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.print.Printer;
+
 /**
  * Esta clase carga, guarda y administra la configuración del programa durante
  * su ejecución.
@@ -32,6 +36,10 @@ public class LFMConfig {
 	private String m_printerFolder = LFMImporter.USER_PRINTERFOLDER;
 	/** Carpeta desde donde sacar las fotos */
 	private String m_sourceFolder = "\\\\flashair\\DavWWWRoot\\";
+	
+	// IMPRESORAS
+	/** Impresora para imprimir */
+	private String m_printer = getCanonPrinter();
 	
 	// WIFI
 	/** Interfaz que se usa para buscar redes disponibles (Se apaga y enciende) */
@@ -72,6 +80,8 @@ public class LFMConfig {
 			m_printerFolder = ini.getString("Settings", "printerFolder", m_printerFolder);
 			m_sourceFolder = ini.getString("Settings", "sourceFolder", m_sourceFolder);
 			
+			m_printer = ini.getString("Printer", "printer", m_printer);
+			
 			m_searchInterface = ini.getString("Wifi", "searchInterface", m_searchInterface);
 			m_wifiSDName = ini.getString("Wifi", "wifiSDName", m_wifiSDName);
 			m_wifiSDSSID = ini.getString("Wifi", "wifiSDSSID", m_wifiSDSSID);
@@ -102,11 +112,17 @@ public class LFMConfig {
 			out.write("#Configuración LFMImporter" + br);
 			out.write("#" + dateFormat.format(Calendar.getInstance().getTime()) + br + br);
 			
+			out.write(br);
 			out.write("[Settings]" + br);
 			out.write("cameraFolder=" + m_cameraFolder + br);
 			out.write("printerFolder=" + m_printerFolder + br);
 			out.write("sourceFolder=" + m_sourceFolder + br);
 			
+			out.write(br);
+			out.write("[Printer]" + br);
+			out.write("printer=" + m_printer + br);
+			
+			out.write(br);
 			out.write("[Wifi]" + br);
 			out.write("searchInterface=" + m_searchInterface + br);
 			out.write("wifiSDName=" + m_wifiSDName + br);
@@ -145,6 +161,14 @@ public class LFMConfig {
 	public void setSourceFolder(String sourceFolder) {
 		m_sourceFolder = sourceFolder;
 	}
+	
+	public String getPrinter() {
+		return m_printer;
+	}
+
+	public void setPrinter(String printer) {
+		m_printer = printer;
+	}
 
 	public String getSearchInterface() {
 		return m_searchInterface;
@@ -178,5 +202,19 @@ public class LFMConfig {
 		m_conectSDInterface = conectSDInterface;
 	}
 
+	public static ObservableList<String> getPrintersAvaylable() {
+		ObservableList<String> printers = FXCollections.observableArrayList();
+		for (Printer p : Printer.getAllPrinters()) {
+			printers.add(p.getName());
+		}
+		return printers;
+	}
+	
+	public static String getCanonPrinter() {
+		for (Printer p : Printer.getAllPrinters()) { 
+			if (p.getName().toLowerCase().contains("selphy")) return p.getName();
+		}
+		return "";
+	}
 
 }

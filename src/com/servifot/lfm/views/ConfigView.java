@@ -3,6 +3,7 @@ package com.servifot.lfm.views;
 import java.io.File;
 import java.io.IOException;
 
+import com.servifot.lfm.lfmimporter.LFMConfig;
 import com.servifot.lfm.lfmimporter.LFMImporter;
 import com.servifot.lfm.utils.LFMUtils;
 
@@ -53,6 +54,16 @@ public class ConfigView extends View {
 		VBox carpetasBox = new VBox(VSPACE, carpetaImatgesBox, carpetaPrinterBox, carpetaOrigenBox);
 		
 		TitledPane carpetasTP = new TitledPane("Carpetas", carpetasBox);
+		carpetasTP.setExpanded(false);
+		
+		// IMPRESORA
+		Label selectPrinterlbl = new Label("Impresora: ");
+		ObservableList<String> selectPrinterOL = LFMConfig.getPrintersAvaylable();
+		ComboBox<String> selectPrinterCB = new ComboBox<>(selectPrinterOL);
+		HBox selectPrinterBox = new HBox(HSPACE, selectPrinterlbl, selectPrinterCB);
+		
+		TitledPane printerTP = new TitledPane("Impresora", selectPrinterBox);
+		printerTP.setExpanded(false);
 		
 		// WIFI
 		Label searchInterfacelbl = new Label("Interfaz de búsqueda: ");
@@ -93,7 +104,7 @@ public class ConfigView extends View {
 		
 		HBox acceptcancelbox = new HBox(HSPACE, accepts, cancel);
 		
-		VBox rootBox = new VBox(VSPACE, carpetasTP, wifisTP, btnsBox, acceptcancelbox);
+		VBox rootBox = new VBox(VSPACE, carpetasTP, printerTP, wifisTP, btnsBox, acceptcancelbox);
 		
 		
 		// Implementamos funcionalidades
@@ -110,6 +121,8 @@ public class ConfigView extends View {
 				LFMImporter.getConfig().setCameraFolder(carpetaImatgespathLbl.getText());
 				LFMImporter.getConfig().setPrinterFolder(carpetaPrinterpathLbl.getText());
 				LFMImporter.getConfig().setSourceFolder(carpetaOrigentf.getText());
+				
+				LFMImporter.getConfig().setPrinter(selectPrinterCB.getValue());
 				
 				LFMImporter.getConfig().setSearchInterface(searchInterfazCb.getValue());
 				LFMImporter.getConfig().setWifiSDName(wifinametf.getText());

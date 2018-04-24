@@ -1,6 +1,7 @@
 package com.servifot.lfm.lfmimporter;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class WifiSDConector extends Thread {
@@ -178,6 +179,18 @@ public class WifiSDConector extends Thread {
 
 	public boolean isKilled() {
 		return m_killed;
+	}
+	
+	/**
+	 * Lanza el comando para dejar el wifi encendido.
+	 */
+	public static void startWifi() {
+		try {
+			Runtime.getRuntime().exec("netsh interface set interface name=\"" + LFMImporter.getConfig().getSearchInterface() + "\" admin=enabled");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }
