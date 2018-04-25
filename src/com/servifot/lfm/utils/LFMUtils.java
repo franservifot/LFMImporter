@@ -1,5 +1,13 @@
 package com.servifot.lfm.utils;
 
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Transparency;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -7,17 +15,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
 import javafx.scene.shape.Rectangle;
 
 public class LFMUtils {
-	
-	
+
+
 	private static String[] s_wifidevices = null;
-	
+
 	/**
 	 * Calcula la zona de recorte de un rectángulo para respetar unas porporciones concretas.
 	 * (Encaja un rectángulo con proporciones indicadas dentro del rectángulo original)
-	 * 
+	 *
 	 * @param rect Rectángulo sobre el que calcular la zona de recorte
 	 * @param proportion Rectángulo con las proporciones a respetar.
 	 * @return Rectángulo que representa la zona de recorte sobre el rectángulo original
@@ -29,12 +39,13 @@ public class LFMUtils {
 		double y = rect.getY() + (rect.getHeight() - height)/2;
 		return new Rectangle(x,y,width,height);
 	}
-	
+
 	public static File[] sortByDate(ArrayList<File> unsortedFiles) {
-		return sortByDate(unsortedFiles.toArray(new File[unsortedFiles.size()])); 
+		return sortByDate(unsortedFiles.toArray(new File[unsortedFiles.size()]));
 	}
 
 	public static File[] sortByDate(File[] listFiles) {
+		@SuppressWarnings("rawtypes")
 		class Pair implements Comparable {
 		    public long t;
 		    public File f;
@@ -62,14 +73,14 @@ public class LFMUtils {
 		// Take the sorted pairs and extract only the file part, discarding the timestamp.
 		//for (int i = files.length-1; i >= 0; i--) files[i] = pairs[i].f;
 		for (int i = 0; i <files.length; i++) files[i] = pairs[i].f;
-		
+
 		return files;
 	}
-	
-	
+
+
 	/**
 	 * En el comando netsh wlan show drivers saca los Nombre de interfaz disponibles
-	 * 
+	 *
 	 * @param searchInterfazList lista a llenar con los drivers disponibles
 	 */
 	public static void fillWifiInterfaces(ObservableList<String> searchInterfazList) {
@@ -80,7 +91,7 @@ public class LFMUtils {
 			Process pr;
 			try {
 				pr = rt.exec("netsh wlan show drivers");
-				
+
 				BufferedReader br1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 				System.out.println("Buscando Dispositivos wifi");
 				while ((s = br1.readLine()) != null) {
@@ -91,14 +102,14 @@ public class LFMUtils {
 				}
 				pr.waitFor();
 				br1.close();
-				
+
 				if (searchInterfazList.size() > 0) {
 					s_wifidevices = new String[searchInterfazList.size()];
 					for (int i = 0; i < searchInterfazList.size(); i++) {
 						s_wifidevices[i] = searchInterfazList.get(i);
 					}
 				}
-			
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -108,6 +119,7 @@ public class LFMUtils {
 				searchInterfazList.add(s);
 			}
 		}
-		
+
 	}
+
 }

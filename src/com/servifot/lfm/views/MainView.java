@@ -21,6 +21,7 @@ import com.servifot.lfm.utils.FileUtils;
 import com.servifot.lfm.utils.ImageOrientation;
 import com.servifot.lfm.utils.JPEGMetadata;
 import com.servifot.lfm.utils.LFMUtils;
+import com.servifot.lfm.views.ConfigView.ConfigViewListener;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -38,7 +39,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 
-public class MainView extends View implements ThumbnailWidgetListener, WifiSDConectorListener, LFMImporterListener {
+public class MainView extends View implements ThumbnailWidgetListener, WifiSDConectorListener, LFMImporterListener, ConfigViewListener {
 	private static final String CSS_NAME = "MainView";
 	/** Contenedor de la imagen principal */
 	private ImageView m_mainView = null;
@@ -52,7 +53,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 	private boolean m_importingError = false;
 	/** Indica si se debe denter cualquier bucle */
 	private boolean m_die = false;
-	
+
 	private static final int IV_WIDTH = LFMImporter.SCREEN_WIDTH-50;
 	private static final int IV_HEIGHT = LFMImporter.SCREEN_HEIGHT-(LFMImporter.SCREEN_THUMBS_HEIGHT+50);
 
@@ -63,7 +64,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 	private WifiSDConector m_wifiConector = null;
 	/** Hilo que gestiona la impresión de una carpeta */
 	private FolderPrinter m_folderprinter = null;
-	
+
 	public MainView() {
 		super();
 	}
@@ -83,11 +84,6 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 
 			@Override
 			public void handle(MouseEvent event) {
-				if (event.getClickCount() > 1 ) {
-					if (m_mainView != null) {
-						rotate(m_mainView);
-					}
-				}
 
 			}
 		});
@@ -110,9 +106,13 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		fillThumbsPane(m_thumbsPane, LFMImporter.getConfig().getCameraFolder());
 
 		// Creamos la caja de los botones
-		Button editbtn = new Button("Editar");
+		Button editbtn = new Button("Edit");
 		Button configbtn = new Button("Config");
-		
+		Button searchbtn = new Button("Search");
+		editbtn.getStyleClass().addAll("mv-btn", "mv-btn-editbtn");
+		configbtn.getStyleClass().addAll("mv-btn", "mv-btn-configbtn");
+		searchbtn.getStyleClass().addAll("mv-btn", "mv-btn-searchbtn");
+
 		editbtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -123,21 +123,34 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 				}
 			}
 		});
-		
+
 		configbtn.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent event) {
 				ConfigView cv = new ConfigView();
 				cv.setBackView(MainView.this);
+				cv.setListener(MainView.this);
 				emitAddView(cv);
 			}
 		});
 
-		VBox btnsBox = new VBox(editbtn, configbtn);
+		searchbtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				SearchView sv = new SearchView(LFMImporter.getConfig().getCameraFolder());
+				sv.setBackView(MainView.this);
+				emitAddView(sv);
+			}
+		});
+
+
+
+		VBox btnsBox = new VBox(editbtn, searchbtn, configbtn);
 		btnsBox.getStyleClass().add("mv-btnsBox");
 
 		HBox botBox = new HBox(thumbsScrollPane, btnsBox);
+		botBox.getStyleClass().add("mv-botbox");
 
 		// Ensamblamos
 		BorderPane rootpane = new BorderPane(centerbox);
@@ -148,13 +161,13 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 
 	private void fillThumbsPane(TilePane thumbsPane, String folder) {
 		File folderimg = new File(folder);
-		
+
 		if (folderimg.exists() && folderimg.isDirectory()) {
 			File [] folderFiles = folderimg.listFiles();
 			if (folderFiles.length < 1) return;
 			File [] sortedFiles = LFMUtils.sortByDate(folderFiles);
 			selectImage(sortedFiles[sortedFiles.length-1]);
-			for (File imgFile : sortedFiles) { //TODO ORDER BY DATE
+			for (File imgFile : sortedFiles) {
 				if (FileUtils.getExtension(imgFile.getAbsolutePath()).toLowerCase().equals("jpg")) {
 					addThumb(imgFile, thumbsPane);
 				}
@@ -162,19 +175,6 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		}
 	}
 
-	protected void rotate(ImageView iv) {
-		if (m_rotation == 0) {
-			m_rotation = 90;
-			iv.setFitWidth(IV_HEIGHT);
-			iv.setFitHeight(IV_WIDTH);
-		} else {
-			m_rotation = 0;
-			iv.setFitWidth(IV_WIDTH);
-			iv.setFitHeight(IV_HEIGHT);
-		}
-		iv.setRotate(m_rotation);
-		iv.setImage(new Image("file:///" + m_currentFile.getAbsolutePath()));
-	}
 
 	@Override
 	public String getCssName() {
@@ -188,31 +188,43 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 
 	private void selectImage(File file) {
 		if (file.isFile()) {
+			Image source = null;
 			try {
-				m_mainView.setImage(new Image("file:///" + file.getAbsolutePath(), true));
+
 				JPEGMetadata meta = new JPEGMetadata(file.getAbsolutePath());
+				source = new Image("file:///" + file.getAbsolutePath(), true);
 				switch (meta.getOrientation().toString()) {
 				case ImageOrientation.VALUE_DOWN:
 					m_mainView.setRotate(180);
+					//source = SwingFXUtils.toFXImage((LFMUtils.getRotatedImage(ImageIO.read(file), 180)), null);
 					break;
 				case ImageOrientation.VALUE_LEFT:
 					m_mainView.setRotate(90);
-					m_mainView.setFitHeight(IV_WIDTH);
-					m_mainView.setFitWidth(IV_HEIGHT);
+					//source = SwingFXUtils.toFXImage((LFMUtils.getRotatedImage(ImageIO.read(file), 90)), null);
+					//m_mainView.setFitHeight(IV_WIDTH);
+					//m_mainView.setFitWidth(IV_HEIGHT);
 					break;
 				case ImageOrientation.VALUE_RIGHT:
 					m_mainView.setRotate(270);
+					//source = SwingFXUtils.toFXImage((LFMUtils.getRotatedImage(ImageIO.read(file), 270)), null);
 					break;
 				default:
 					m_mainView.setRotate(0);
 					break;
 				}
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+
+			try {
+				m_mainView.setImage(source);
 			} catch (Exception e) {
 				FXWorker.runAsync(FXWorker.JOBTYPE_IMAGEVIEW_SETIMAGE, m_mainView, file.getAbsolutePath());
 			}
+
 		}
 		m_currentFile = file;
-		
+
 	}
 
 	@Override
@@ -221,11 +233,11 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 	}
 
 	private void importImages() {
-		
+
 		while (!m_importingError && !m_die) {
 			File sourcefolder = new File(LFMImporter.getConfig().getSourceFolder());
 			File destFolder = new File(LFMImporter.getConfig().getCameraFolder());
-			
+
 			System.out.println("DEBUG: Getting AllImages");
 			ArrayList<File> sourceImages = getAllImages(sourcefolder);
 			System.out.println("DEBUG: FIN getting allimages");
@@ -236,11 +248,11 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 				m_importingError = true;
 			}
 		}
-		
+
 		System.out.println("No se ha podido acceder a la carpeta. Revisamos la conexión wifi");
 		startWifi(true);
 	}
-	
+
 	private void addImages(ArrayList<File> sourceImages, File destFolder) {
 		if (sourceImages.size() < 1) return;
 		System.out.println("DEBUG: Sorting");
@@ -250,7 +262,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		for (File img : addFiles) {
 			File destImage = new File(destFolder+"/"+img.getName());
 			System.out.println("DEBUG: Copy file");
-			//if( FileUtils.copyFile(img, destImage, true)) 
+			//if( FileUtils.copyFile(img, destImage, true))
 			try {
 				Files.copy(img.toPath(), destImage.toPath(), StandardCopyOption.REPLACE_EXISTING);
 				System.out.println("DEBUG: FIN Copy file");
@@ -267,10 +279,10 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 			}
 		}
 	}
-	
+
 	/**
 	 * Devuelve todas las imágenes que nose han descargado de la tarjeta.
-	 * 
+	 *
 	 * @param sourcefolder Carpeta de origen
 	 * @return Imágenes nuevas no descargadas o null si tiene algún problema
 	 */
@@ -296,7 +308,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 				System.out.println("Fin de la espera " + i);
 			}
 		}
-		
+
 		if (found) {
 			jpgs = new ArrayList<>();
 			addImagesRecursively(sourcefolder.listFiles(), jpgs);
@@ -311,16 +323,15 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 					try {
 						lock.wait(2000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
 			}
 		}
-		
+
 		return jpgs;
 	}
-	
+
 	private void addImagesRecursively(File[] f, ArrayList<File> jpgs) {
 		if (f == null) {
 			System.err.println("f es null");
@@ -337,8 +348,8 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 			}
 		}
 	}
-	
-	
+
+
 	private void addThumb(File imgFile, TilePane thumbsPane) {
 		m_importedIages.put(imgFile.getName(), imgFile);
 		System.out.println("DEBUG: Creating ThumbnailW");
@@ -352,7 +363,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 			FXWorker.runSync(FXWorker.JOBTYPE_ADD_TILEPANECHILD, thumbsPane, tw,0);
 		}
 	}
-	
+
 	/**
 	 * Deten el hilo que se conecta al wifi (si estuviese activo) y arranca uno nuevo
 	 */
@@ -372,7 +383,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		if (m_wifiConector != null) m_wifiConector.kill();
 		m_wifiConector = null;
 	}
-	
+
 	/** Arranca la impresión */
 	private void startPrinter() {
 		 if (m_folderprinter != null) {
@@ -382,19 +393,22 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		 }
 		 m_folderprinter.start();
 	}
-	
+
 	private void stopPrinter() {
-		if (m_folderprinter != null) m_folderprinter.kill();
+		if (m_folderprinter != null) {
+			m_folderprinter.kill();
+
+		}
 		m_folderprinter = null;
 	}
-	
+
 	@Override
 	public void onLoad() {
-		startWifi(false);
+		//startWifi(false);
 		startPrinter();
 	}
-	
-	
+
+
 
 	@Override
 	public void onStop() {
@@ -402,5 +416,13 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		stopWifi();
 		stopPrinter();
 	}
-	
+
+	@Override
+	public void onConfigApply() {
+		// Reiniciamos la impresión para se ejecute con la nueva configuración
+		stopPrinter();
+		startPrinter();
+
+	}
+
 }

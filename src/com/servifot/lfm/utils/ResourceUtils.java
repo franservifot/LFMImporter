@@ -8,15 +8,12 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import com.servifot.lfm.lfmimporter.LFMImporter;
 
 /**
  * Utilidades para trabajar con ficheros contenidos como recursos dentro del classpath o en un jar.
@@ -26,7 +23,7 @@ public class ResourceUtils {
 
 	/**
 	 * Lista los nombres de todos los ficheros contenidos dentro de una ruta del classpath.
-	 * 
+	 *
 	 * @param clazz Clase a partir de la que buscar los recursos
 	 * @param path Ruta del classpath a analizar
 	 * @return Listado de nombres de fichero, puede estar vacío. Nunca <code>null</code>.
@@ -40,7 +37,7 @@ public class ResourceUtils {
 		if (!cleanPath.endsWith("/")) {
 			cleanPath += "/";
 		}
-		
+
 		// Recuperamos listado de recursos
 		String[] resourceNames = null;
 		try {
@@ -48,14 +45,14 @@ public class ResourceUtils {
 		} catch (Exception e) {
 			/* Ignore */
 		}
-		
+
 		// Aseguramos que no se devuelve nunca null
 		return (resourceNames == null) ? new String[] {} : resourceNames;
-	}	
-	
-	
+	}
+
+
 	/**
-	 * Extrae un recurso del classpath a un fichero 
+	 * Extrae un recurso del classpath a un fichero
 	 * @param clazz Clase a partir de la que buscar los recursos
 	 * @param resourcePath Ruta del recurso en el classpath
 	 * @param outPath Fichero de salida
@@ -81,14 +78,14 @@ public class ResourceUtils {
 			try {is.close();} catch (Exception ex) {/*Ignore*/}
 			return false;
 		}
-		
+
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * Extrae todos los recursos contenidos en una ruta del classpath a una carpeta.
-	 *  
+	 *
 	 * @param clazz Clase a partir de la que buscar los recursos
 	 * @param path Ruta del classpath donde buscar recursos
 	 * @param folder Carpeta de salida.
@@ -117,41 +114,41 @@ public class ResourceUtils {
 //				e.printStackTrace();
 //			}
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	  * List directory contents for a resource folder. Not recursive.
 	  * This is basically a brute-force implementation.
 	  * Works for regular files and also JARs.
-	  * 
+	  *
 	  * @author Greg Briggs
 	  * @param clazz Any java class that lives in the same place as the resources you want.
 	  * @param path Should end with "/", but not start with one.
 	  * @return Just the name of each member item, not the full paths.
-	  * @throws URISyntaxException 
-	  * @throws IOException 
+	  * @throws URISyntaxException
+	  * @throws IOException
 	  */
 	private static String[] getResourceListing(Class<?> clazz, String path) throws URISyntaxException, IOException {
 		URL dirURL = clazz.getClassLoader().getResource(path);
-		
+
 		if (dirURL != null && dirURL.getProtocol().equals("file")) {
 			System.out.println(dirURL.getFile());
 			/* A file path: easy enough */
 			return new File(dirURL.toURI()).list();
-		} 
-		
+		}
+
 		if (dirURL == null) {
 			System.out.println("DIRURL IS NULL");
-			/* 
+			/*
 			 * In case of a jar file, we can't actually find a directory.
 			 * Have to assume the same jar as clazz.
 			 */
 			String me = clazz.getName().replace(".", "/")+".class";
 				dirURL = clazz.getClassLoader().getResource(me);
 			  }
-			  
+
 			if (dirURL.getProtocol().equals("jar")) {
 			/* A JAR path */
 			String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!")); //strip out only the JAR file
@@ -172,19 +169,19 @@ public class ResourceUtils {
 			}
 			jar.close();
 			return result.toArray(new String[result.size()]);
-		} 
-		
+		}
+
 		throw new UnsupportedOperationException("Cannot list files for URL "+dirURL);
 	}
-	
+
 	/**
 	 * Método que escriben el file que devuelve el contenido del inputstream que se le pasa
-	 * 
+	 *
 	 * @param entrada debe representar un fichero
 	 * @param nombreTemporal nombre para el fichero que se devuelve (con la extensión) Ej: "archivo.ini"
-	 * 
+	 *
 	 * @return File con el contenido del inputstream
-	 * 
+	 *
 	 * @throws IOException Si no puede crear, leer, escribir o cerrar el fichero
 	 */
 	public static File inputStreamToFile(InputStream entrada, String nombreTemporal) throws IOException{

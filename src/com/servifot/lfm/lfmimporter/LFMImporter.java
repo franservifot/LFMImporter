@@ -36,13 +36,13 @@ public class LFMImporter extends Application implements ViewListener {
 	public static final String USER_IMAGESFOLDER = USER_FOLDER + "/cameraImages";
 	/** Ruta POR DEFECTO de la carpeta de imagenes para imprimir */
 	public static final String USER_PRINTERFOLDER = USER_FOLDER + "/printerImages";
-	
+
 
 	/** Número de la posición central de las ventanas superpuestas  */
 	private static final int Z_ORDER_MIDDLE = 1;
 	/** Número de la posición mas alta de las ventanas superpuestas  */
 	private static final int Z_ORDER_TOP = 2;
-	
+
 	/** Ancho de la ventana */
 	public static final int SCREEN_WIDTH = 594;
 	/** Alto de la ventana */
@@ -59,7 +59,7 @@ public class LFMImporter extends Application implements ViewListener {
 	private BorderPane m_root = null;
 	/** Gestor principal de layout de la ventana de la aplicación */
 	private StackPane m_stackRoot = null;
-	
+
 	private ArrayList<LFMImporterListener> m_listeners = new ArrayList<>();
 
 	public static void main (String[] args) {
@@ -137,7 +137,6 @@ public class LFMImporter extends Application implements ViewListener {
 	private void addView(View view) {
 		// Pasamos referencia a la view principal para que añada a su lista de Listeners
 		view.addListener(this);
-		//view.setMainApp(this);
 
 		// Cargamos los ficheros de estilo
 		String cssBaseName = view.getCssName();
@@ -174,8 +173,8 @@ public class LFMImporter extends Application implements ViewListener {
 	public void stop() {
 		emitStop();
 		if (s_graphicsFolder != null && s_graphicsFolder.isDirectory()) {
-			deleteGraphicsFolder();
-			System.out.println("Eliminada la carpeta temporal con los archivos del programa");
+//			deleteGraphicsFolder();
+//			System.out.println("Eliminada la carpeta temporal con los archivos del programa");
 		}
 		WifiSDConector.startWifi();
 	}
@@ -226,20 +225,20 @@ public class LFMImporter extends Application implements ViewListener {
 			System.err.println("No es posible crear la carpeta de la cámara " + userFolder.getAbsolutePath());
 			return false;
 		}
-		
+
 		File printerFolder = new File(getConfig().getPrinterFolder());
 		if (!FileUtils.createFolder(printerFolder)) {
 			System.err.println("No es posible crear la carpeta de la impresora " + userFolder.getAbsolutePath());
 			return false;
 		}
-		
+
 		File graphicsFolder = new File(USER_FOLDER +"/estilos");
 		s_graphicsFolder = graphicsFolder;
 		if (!FileUtils.createFolder(graphicsFolder)) {
 			System.err.println("No es posible crear la carpeta de recursos gráficos " + userFolder.getAbsolutePath());
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -250,9 +249,9 @@ public class LFMImporter extends Application implements ViewListener {
 	 * @return <code>true</code> si se extraen correctamente, <code>false</code> en caso contrario
 	 */
 	private static boolean extractGraphicsResources(File folder) {
-		
+
 		System.out.println("Extrayendo recursos gráficos");
-		
+
 		// Preparamos carpetas donde extraer los recursos
 		File cssFolder = new File(folder.getAbsolutePath()+"/css");
 		if (!FileUtils.createFolder(cssFolder)) {
@@ -391,10 +390,10 @@ public class LFMImporter extends Application implements ViewListener {
 	public void onAddedViewFinished() {
 		if (m_stackRoot.getChildren().size() == Z_ORDER_MIDDLE+1) {
 			m_stackRoot.getChildren().remove(Z_ORDER_MIDDLE);
-			
+
 		} else if (m_stackRoot.getChildren().size() == Z_ORDER_TOP+1) {
 			m_stackRoot.getChildren().remove(Z_ORDER_TOP);
-			
+
 		} else if (m_stackRoot.getChildren().size()>2){
 			m_stackRoot.getChildren().remove(m_stackRoot.getChildren().size()-1); // Se intenta eliminar la ventan
 		}
@@ -413,7 +412,7 @@ public class LFMImporter extends Application implements ViewListener {
 		changeView(nextView);
 
 	}
-	
+
 	private void emitStop() {
 		if (m_listeners != null & !m_listeners.isEmpty()) {
 			for (LFMImporterListener listener : m_listeners) {
@@ -421,13 +420,13 @@ public class LFMImporter extends Application implements ViewListener {
 			}
 		}
 	}
-	
+
 	public void addListener(LFMImporterListener listener) {
 		if(m_listeners == null) m_listeners = new ArrayList<>();
-		
+
 		m_listeners.add(listener);
 	}
-	
+
 	public interface LFMImporterListener {
 		/**
 		 * Indica que se está cerrando la aplicación

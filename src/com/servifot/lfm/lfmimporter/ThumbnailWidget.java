@@ -15,13 +15,14 @@ import javafx.scene.shape.Rectangle;
 
 public class ThumbnailWidget extends VBox {
 
+	private static final int CANVAS_HEIGHT = LFMImporter.SCREEN_THUMBS_HEIGHT - 30;
 	private File m_imagefile = null;
 	private ThumbnailWidgetListener m_listener = null;
 
 	public ThumbnailWidget(File imagefile) {
 		m_imagefile = imagefile;
 
-		Canvas iv = new Canvas(LFMImporter.SCREEN_THUMBS_HEIGHT, LFMImporter.SCREEN_THUMBS_HEIGHT);
+		Canvas iv = new Canvas(CANVAS_HEIGHT, CANVAS_HEIGHT);
 
 		if(m_imagefile.isFile()) {
 			// Probamos de cargar la miniatura
@@ -36,11 +37,11 @@ public class ThumbnailWidget extends VBox {
 			if (prevjpg != null && prevjpg.hasThumbnail()) {
 				img = new Image(prevjpg.getThumbnailAsInputStream());
 			} else {
-				img = new Image("file:///"+m_imagefile.getAbsolutePath());	
+				img = new Image("file:///"+m_imagefile.getAbsolutePath());
 			}
-			
+
 			Rectangle imgrectangle = new Rectangle(0, 0, img.getWidth(), img.getHeight());
-			Rectangle canvasRectangle = new Rectangle(0, 0, LFMImporter.SCREEN_THUMBS_HEIGHT, LFMImporter.SCREEN_THUMBS_HEIGHT);
+			Rectangle canvasRectangle = new Rectangle(0, 0, CANVAS_HEIGHT, CANVAS_HEIGHT);
 			Rectangle imgSource = LFMUtils.fitRectangle(imgrectangle, canvasRectangle);
 			//Rectangle imgSource = LFMUtils.fitRectangle(canvasRectangle, imgrectangle);
 			iv.getGraphicsContext2D().drawImage(img, imgSource.getX(), imgSource.getY(), imgSource.getWidth(), imgSource.getHeight(), canvasRectangle.getX(), canvasRectangle.getY(), canvasRectangle.getWidth(), canvasRectangle.getHeight());
