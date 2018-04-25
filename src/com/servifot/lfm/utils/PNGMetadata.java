@@ -1,4 +1,4 @@
-package com.servifot.lfm.views;
+package com.servifot.lfm.utils;
 
 import java.awt.color.ICC_Profile;
 import java.io.BufferedInputStream;

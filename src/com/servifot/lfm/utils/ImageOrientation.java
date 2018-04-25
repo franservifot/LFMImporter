@@ -1,4 +1,4 @@
-package com.servifot.lfm.views;
+package com.servifot.lfm.utils;
 
 /**
  * Orientaciones de los píxeles de una imagen digital.

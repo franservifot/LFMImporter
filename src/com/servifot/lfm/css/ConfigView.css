@@ -1,3 +1,75 @@
 .cv-close-btn {
 	-fx-background-color: rgb(239, 155, 155);
 }
+
+/******************/
+/***** BOTONES ****/
+/******************/
+.cv-btn {
+	-fx-font-size: 20pt;
+}
+.cv-btn-carpetaImatgesSelectbtn {
+	-fx-background-color: red;
+}
+.cv-btn-carpetaImatgesOpenbtn {
+	
+}
+.cv-btn-carpetaPrinterSelectbtn {
+	
+}
+.cv-btn-carpetaPrinterOpenbtn {
+	
+}
+.cv-btn-minimBtn {
+	
+}
+.cv-btn-fullscreenBtn {
+	
+}
+.cv-btn-closeBtn {
+	
+}
+.cv-btn-accepts {
+	
+}
+.cv-btn-cancel {
+	
+}
+
+/*****************/
+/***** LABELS ****/
+/*****************/
+.cv-lbl {
+	
+}
+.cv-lbl-carpetaImatgesLbl {
+	
+}
+
+.cv-lbl-carpetaPrinterLbl {
+	
+}
+
+.cv-lbl-carpetaOrigenlbl {
+	
+}
+
+.cv-lbl-selectPrinterlbl {
+	
+}
+
+.cv-lbl-searchInterfacelbl {
+	
+}
+
+.cv-lbl-wifinamelbl {
+	
+}
+
+.cv-lbl-wifissidlbl {
+	
+}
+
+.cv-lbl-connectInterfacelbl {
+	
+}

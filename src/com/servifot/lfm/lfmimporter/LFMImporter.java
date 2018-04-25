@@ -68,11 +68,11 @@ public class LFMImporter extends Application implements ViewListener {
 			System.err.println("No es posible inicializar las carpetas de trabajo.");
 			return;
 		}
-		s_graphicsFolder = getGraphicsFolder();
-		if (s_graphicsFolder == null) {
-			System.err.println("No se ha podido generar la carpeta de recursos gráficos");
-			return;
-		}
+//		s_graphicsFolder = getGraphicsFolder();
+//		if (s_graphicsFolder == null) {
+//			System.err.println("No se ha podido generar la carpeta de recursos gráficos");
+//			return;
+//		}
 		if (!extractGraphicsResources(s_graphicsFolder)) {
 			System.err.println("No se puede preparar los recursos gráficos del programa.");
 			return;
@@ -193,7 +193,6 @@ public class LFMImporter extends Application implements ViewListener {
 				FileUtils.deleteFolder(f, true);
 			}
 		}
-
 	}
 
 	/**
@@ -233,36 +232,15 @@ public class LFMImporter extends Application implements ViewListener {
 			System.err.println("No es posible crear la carpeta de la impresora " + userFolder.getAbsolutePath());
 			return false;
 		}
-
-		return true;
-	}
-
-
-	/**
-	 * Crea una carpeta para almacenar las clases con los estilos.
-	 *
-	 * @return El archivo que representa la carpeta o null si no la puede crear.
-	 */
-	public static File getGraphicsFolder() {
-		File tempGraphicsFolder = null;
-		try {
-			String graphicsPath = USER_FOLDER +"/estilos";
-			int i = 0;
-			while (new File(graphicsPath).exists()) {
-				graphicsPath = USER_FOLDER + "/estilos_" + i;
-				i++;
-			}
-
-			tempGraphicsFolder = new File(graphicsPath);
-			if (!tempGraphicsFolder.mkdirs()) {
-				return null;
-			}
-		} catch (Exception e) {
-			System.err.println("Error creando la carpeta de los estilos " + e.getMessage());
-			return null;
+		
+		File graphicsFolder = new File(USER_FOLDER +"/estilos");
+		s_graphicsFolder = graphicsFolder;
+		if (!FileUtils.createFolder(graphicsFolder)) {
+			System.err.println("No es posible crear la carpeta de recursos gráficos " + userFolder.getAbsolutePath());
+			return false;
 		}
-
-		return tempGraphicsFolder;
+		
+		return true;
 	}
 
 	/**

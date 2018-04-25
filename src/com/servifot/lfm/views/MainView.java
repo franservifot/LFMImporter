@@ -4,11 +4,8 @@ package com.servifot.lfm.views;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -21,6 +18,8 @@ import com.servifot.lfm.lfmimporter.LFMImporter.LFMImporterListener;
 import com.servifot.lfm.lfmimporter.WifiSDConector.WifiSDConectorListener;
 import com.servifot.lfm.utils.FXWorker;
 import com.servifot.lfm.utils.FileUtils;
+import com.servifot.lfm.utils.ImageOrientation;
+import com.servifot.lfm.utils.JPEGMetadata;
 import com.servifot.lfm.utils.LFMUtils;
 
 import javafx.event.ActionEvent;
@@ -113,7 +112,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		// Creamos la caja de los botones
 		Button editbtn = new Button("Editar");
 		Button configbtn = new Button("Config");
-
+		
 		editbtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -191,6 +190,23 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		if (file.isFile()) {
 			try {
 				m_mainView.setImage(new Image("file:///" + file.getAbsolutePath(), true));
+				JPEGMetadata meta = new JPEGMetadata(file.getAbsolutePath());
+				switch (meta.getOrientation().toString()) {
+				case ImageOrientation.VALUE_DOWN:
+					m_mainView.setRotate(180);
+					break;
+				case ImageOrientation.VALUE_LEFT:
+					m_mainView.setRotate(90);
+					m_mainView.setFitHeight(IV_WIDTH);
+					m_mainView.setFitWidth(IV_HEIGHT);
+					break;
+				case ImageOrientation.VALUE_RIGHT:
+					m_mainView.setRotate(270);
+					break;
+				default:
+					m_mainView.setRotate(0);
+					break;
+				}
 			} catch (Exception e) {
 				FXWorker.runAsync(FXWorker.JOBTYPE_IMAGEVIEW_SETIMAGE, m_mainView, file.getAbsolutePath());
 			}
@@ -374,7 +390,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 	
 	@Override
 	public void onLoad() {
-		//startWifi(false);
+		startWifi(false);
 		startPrinter();
 	}
 	

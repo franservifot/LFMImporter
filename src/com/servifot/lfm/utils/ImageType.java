@@ -1,4 +1,4 @@
-package com.servifot.lfm.views;
+package com.servifot.lfm.utils;
 
 /**
  * Identificadores de tipos de imagen.

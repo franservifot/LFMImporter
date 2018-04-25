@@ -3,8 +3,8 @@ package com.servifot.lfm.lfmimporter;
 import java.io.File;
 import java.io.IOException;
 
+import com.servifot.lfm.utils.JPEGMetadata;
 import com.servifot.lfm.utils.LFMUtils;
-import com.servifot.lfm.views.JPEGMetadata;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;

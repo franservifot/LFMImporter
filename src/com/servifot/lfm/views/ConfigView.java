@@ -60,6 +60,7 @@ public class ConfigView extends View {
 		Label selectPrinterlbl = new Label("Impresora: ");
 		ObservableList<String> selectPrinterOL = LFMConfig.getPrintersAvaylable();
 		ComboBox<String> selectPrinterCB = new ComboBox<>(selectPrinterOL);
+		selectPrinterCB.setValue(LFMImporter.getConfig().getPrinter());
 		HBox selectPrinterBox = new HBox(HSPACE, selectPrinterlbl, selectPrinterCB);
 		
 		TitledPane printerTP = new TitledPane("Impresora", selectPrinterBox);
@@ -106,6 +107,24 @@ public class ConfigView extends View {
 		
 		VBox rootBox = new VBox(VSPACE, carpetasTP, printerTP, wifisTP, btnsBox, acceptcancelbox);
 		
+		carpetaImatgesSelectbtn.getStyleClass().addAll("cv-btn", "cv-btn-carpetaImatgesSelectbtn");
+		carpetaImatgesOpenbtn.getStyleClass().addAll("cv-btn", "cv-btn-carpetaImatgesOpenbtn");
+		carpetaPrinterSelectbtn.getStyleClass().addAll("cv-btn", "cv-btn-carpetaPrinterSelectbtn");
+		carpetaPrinterOpenbtn.getStyleClass().addAll("cv-btn", "cv-btn-carpetaPrinterOpenbtn");
+		minimBtn.getStyleClass().addAll("cv-btn", "cv-btn-minimBtn");
+		fullscreenBtn.getStyleClass().addAll("cv-btn", "cv-btn-fullscreenBtn");
+		closeBtn.getStyleClass().addAll("cv-btn", "cv-btn-closeBtn");
+		accepts.getStyleClass().addAll("cv-btn", "cv-btn-accepts");
+		cancel.getStyleClass().addAll("cv-btn", "cv-btn-cancel");
+		
+		carpetaImatgesLbl.getStyleClass().addAll("cv-lbl", "cv-lbl-carpetaImatgesLbl");
+		carpetaPrinterLbl.getStyleClass().addAll("cv-lbl", "cv-lbl-carpetaPrinterLbl");
+		carpetaOrigenlbl.getStyleClass().addAll("cv-lbl", "cv-lbl-carpetaOrigenlbl");
+		selectPrinterlbl.getStyleClass().addAll("cv-lbl", "cv-lbl-selectPrinterlbl");
+		searchInterfacelbl.getStyleClass().addAll("cv-lbl", "cv-lbl-searchInterfacelbl");
+		wifinamelbl.getStyleClass().addAll("cv-lbl", "cv-lbl-wifinamelbl");
+		wifissidlbl.getStyleClass().addAll("cv-lbl", "cv-lbl-wifissidlbl");
+		connectInterfacelbl.getStyleClass().addAll("cv-lbl", "cv-lbl-connectInterfacelbl");
 		
 		// Implementamos funcionalidades
 		cancel.setOnAction(new EventHandler<ActionEvent>() {

@@ -1,5 +1,11 @@
 package com.servifot.lfm.lfmimporter;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,21 +20,17 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import javax.print.attribute.ResolutionSyntax;
+import javax.print.PrintService;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.MediaPrintableArea;
 import javax.print.attribute.standard.PrinterResolution;
 
-import com.servifot.lfm.utils.FileUtils;
 import com.servifot.lfm.utils.LFMUtils;
 
-import javafx.print.Paper;
-import javafx.print.PrintQuality;
-import javafx.print.PrintResolution;
-import javafx.print.Printer;
-import javafx.print.PrinterJob;
-import javafx.scene.canvas.Canvas;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.shape.Rectangle;
 
@@ -103,7 +105,7 @@ public class FolderPrinter extends Thread {
 					if (!m_die && event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
 						System.out.println("Created: " + event.context().toString());
 						File newImage = new File(m_folderprint.getAbsolutePath()+"/" + event.context().toString());
-						print(newImage);
+						printImage(newImage);
 					}
 //					Ignoramos estos eventos->					
 //					if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
@@ -121,35 +123,71 @@ public class FolderPrinter extends Thread {
 		
 	}
 	
+	private void printImage(File file) throws PrinterException {
+		String printcmd = "rundll32 shimgvw.dll ImageView_PrintTo /pt \""+file.getAbsolutePath()+"\" \""+LFMImporter.getConfig().getPrinter()+"\"";
+		System.out.println("Printing: " + printcmd);
+		try {
+			Runtime.getRuntime().exec(printcmd);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		addImagePrinted(file, m_printedNames);
+		
+    }
+	
 	/**
 	 * Dado un archivo lo imprime si es una imagen
 	 * 
 	 * @param newImage
 	 */
-	private void print(File newImage) {
-		
-		if (newImage != null && newImage.getAbsolutePath().toLowerCase().matches(".*\\.jpe?g")) {
-			Printer printer = getPrinter();
-			PrinterJob job = PrinterJob.createPrinterJob(printer);
-			
-			if (job != null && !m_die) {
-				Canvas cv = new Canvas(PAPER_W, PAPER_H);
-				Image img = new Image("file:///" + newImage.getAbsolutePath());
-				
-				Rectangle imgrectangle = new Rectangle(0, 0, img.getWidth(), img.getHeight());
-				Rectangle canvasRectangle = new Rectangle(0, 0, PAPER_W, PAPER_H);
-				Rectangle imgSource = LFMUtils.fitRectangle(imgrectangle, canvasRectangle);
-				//Rectangle imgSource = LFMUtils.fitRectangle(canvasRectangle, imgrectangle);
-				cv.getGraphicsContext2D().drawImage(img, imgSource.getX(), imgSource.getY(), imgSource.getWidth(), imgSource.getHeight(), canvasRectangle.getX(), canvasRectangle.getY(), canvasRectangle.getWidth(), canvasRectangle.getHeight());
-				job.getJobSettings().setPrintQuality(PrintQuality.HIGH);
-				if (job.printPage(cv)) {
-					job.endJob(); 
-					//Si conseguimos imprimir la imagen lo registramos
-					addImagePrinted(newImage, m_printedNames);
-				}
-			}
-		}
-	}
+//	private void print(File newImage) {
+//		
+//		if (newImage != null && newImage.getAbsolutePath().toLowerCase().matches(".*\\.jpe?g")) {
+//			Printer printer = getPrinter();
+//			
+//			PageLayout pl = printer.getDefaultPageLayout();//printer.createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, 0, 0, 0, 0);
+//			PrinterJob job = PrinterJob.createPrinterJob(printer);
+//			job.getJobSettings().setPageLayout(pl);
+//			job.getJobSettings().setPrintQuality(PrintQuality.HIGH);
+//			
+//			PrinterAttributes pa = printer.getPrinterAttributes();
+//		    Set<PrintResolution> s = pa.getSupportedPrintResolutions();
+//		    if (s != null) {
+//		        for (PrintResolution newRes : s) {
+//		            System.out.println("newRes= " + newRes);
+//		            job.getJobSettings().setPrintResolution(newRes);
+//		        }
+//		    }
+//			
+//			System.out.println("PrintableWidth: " + pl.getPrintableWidth());
+//			System.out.println("PrintableHeight: " + pl.getPrintableHeight());
+//			System.out.println("LeftMargin: " + pl.getLeftMargin());
+//			System.out.println("RightMargin: " + pl.getRightMargin());
+//			System.out.println("TopMargin: " + pl.getTopMargin());
+//			System.out.println("BottomMargin: " + pl.getBottomMargin());
+//			
+//			if (job != null && !m_die) {
+//				Canvas cv = new Canvas(PAPER_W, PAPER_H);
+//				
+//				Image img = new Image("file:///" + newImage.getAbsolutePath());
+//				
+//				Rectangle imgrectangle = new Rectangle(0, 0, img.getWidth(), img.getHeight());
+//				Rectangle canvasRectangle = new Rectangle(0, 0, PAPER_W, PAPER_H);
+//				Rectangle imgSource = LFMUtils.fitRectangle(imgrectangle, canvasRectangle);
+//				//Rectangle imgSource = LFMUtils.fitRectangle(canvasRectangle, imgrectangle);
+//				cv.getGraphicsContext2D().drawImage(img, imgSource.getX(), imgSource.getY(), imgSource.getWidth(), imgSource.getHeight(), canvasRectangle.getX(), canvasRectangle.getY(), canvasRectangle.getWidth(), canvasRectangle.getHeight());
+//				
+//				double scaleX = pl.getPrintableWidth() / PAPER_W;
+//				cv.getTransforms().add(new Scale(scaleX, scaleX));
+//				
+//				if (job.printPage(cv)) {
+//					job.endJob(); 
+//					//Si conseguimos imprimir la imagen lo registramos
+//					addImagePrinted(newImage, m_printedNames);
+//				}
+//			}
+//		}
+//	}
 	
 	
 	/**
@@ -175,16 +213,31 @@ public class FolderPrinter extends Thread {
 	 * 
 	 * @return impresora configurada o null si no la encuentra
 	 */
-	private Printer getPrinter() {
-		Iterator<Printer> iter = Printer.getAllPrinters().iterator();
-		while(iter.hasNext()) {
-			Printer p = iter.next(); 
-			if (p.getName().equals(LFMImporter.getConfig().getPrinter())) {
-				return p;
-			}
-		}
+	private PrintService getPrinter() {
+		String printername = LFMImporter.getConfig().getPrinter().toLowerCase();
+		PrintService service = null;
+		PrintService[] services = PrinterJob.lookupPrintServices();
+
+        // Retrieve a print service from the array
+        for (int index = 0; service == null && index < services.length; index++) {
+
+            if (services[index].getName().toLowerCase().indexOf(printername) >= 0) {
+                service = services[index];
+            }
+        }
+
+        // Return the print service
+        return service;
 		
-		return null;
+//		Iterator<Printer> iter = Printer.getAllPrinters().iterator();
+//		while(iter.hasNext()) {
+//			Printer p = iter.next(); 
+//			if (p.getName().equals(LFMImporter.getConfig().getPrinter())) {
+//				return p;
+//			}
+//		}
+//		
+//		return null;
 	}
 
 	/**
