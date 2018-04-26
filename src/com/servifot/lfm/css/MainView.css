@@ -8,6 +8,7 @@
 
 .mv-rootpane {
 	-fx-background-color: black;
+	-fx-alignment: top-center;
 }
 
 

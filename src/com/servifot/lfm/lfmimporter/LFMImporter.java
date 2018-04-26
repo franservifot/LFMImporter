@@ -18,6 +18,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 
@@ -44,9 +45,9 @@ public class LFMImporter extends Application implements ViewListener {
 	private static final int Z_ORDER_TOP = 2;
 
 	/** Ancho de la ventana */
-	public static final int SCREEN_WIDTH = 594;
+	public static double SCREEN_WIDTH = 594;
 	/** Alto de la ventana */
-	public static final int SCREEN_HEIGHT = 950;
+	public static double SCREEN_HEIGHT = 950;
 	/** Espacio para el menú inferior */
 	public static final int SCREEN_THUMBS_HEIGHT = 150;
 
@@ -73,6 +74,9 @@ public class LFMImporter extends Application implements ViewListener {
 //			System.err.println("No se ha podido generar la carpeta de recursos gráficos");
 //			return;
 //		}
+		
+
+		
 		if (!extractGraphicsResources(s_graphicsFolder)) {
 			System.err.println("No se puede preparar los recursos gráficos del programa.");
 			return;
@@ -89,7 +93,8 @@ public class LFMImporter extends Application implements ViewListener {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		// TODO Auto-generated method stub
+		SCREEN_WIDTH = Screen.getPrimary().getBounds().getWidth()-50;
+		SCREEN_HEIGHT = Screen.getPrimary().getBounds().getHeight()-50;
 
 		m_root = new BorderPane();
 		m_stackRoot = new StackPane();
@@ -103,6 +108,7 @@ public class LFMImporter extends Application implements ViewListener {
 		primaryStage.setY(0);
 		//primaryStage.setFullScreen(true);
 		primaryStage.setFullScreenExitHint("Para salir, ves a la configuración");
+		//primaryStage.setFullScreen(true);
 		primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 		primaryStage.setScene(scene);
 

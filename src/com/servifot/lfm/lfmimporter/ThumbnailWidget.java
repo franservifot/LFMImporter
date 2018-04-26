@@ -6,10 +6,10 @@ import java.io.IOException;
 import com.servifot.lfm.utils.JPEGMetadata;
 import com.servifot.lfm.utils.LFMUtils;
 
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 
@@ -49,11 +49,13 @@ public class ThumbnailWidget extends VBox {
 		getStyleClass().add("thumbnailwidget");
 		getChildren().add(iv);
 
-		this.setOnMouseClicked(new EventHandler<Event>() {
+		this.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 			@Override
-			public void handle(Event event) {
-				emitThumbPresed();
+			public void handle(MouseEvent event) {
+				if (event.getClickCount() > 1) { 
+					emitThumbPresed();
+				}
 			}
 		});
 	}

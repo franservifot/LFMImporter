@@ -2,6 +2,7 @@ package com.servifot.lfm.lfmimporter;
 
 import java.io.File;
 
+import com.servifot.lfm.lfmimporter.SearchThumbnailWidget.SearchThumbnailWidgetListener;
 import com.servifot.lfm.utils.FXWorker;
 import com.servifot.lfm.utils.FileUtils;
 import com.servifot.lfm.utils.LFMUtils;
@@ -19,10 +20,12 @@ public class PaneFiller extends Thread {
     private TilePane m_tp = null;
     private File m_folder = null;
     private boolean m_die = false;
+    private SearchThumbnailWidgetListener m_thumbslistener = null;
 
-    public PaneFiller(TilePane tp, File folder) {
+    public PaneFiller(TilePane tp, File folder, SearchThumbnailWidgetListener listener) {
     	m_tp = tp;
     	m_folder = folder;
+    	m_thumbslistener = listener;
     }
 
     @Override
@@ -39,6 +42,7 @@ public class PaneFiller extends Thread {
         	if (m_die) return;
         	if (FileUtils.getExtension(file.getAbsolutePath()).toLowerCase().equals("jpg")) {
         		SearchThumbnailWidget st = new SearchThumbnailWidget(file);
+        		st.setListener(m_thumbslistener);
         		FXWorker.runAsync(FXWorker.JOBTYPE_ADD_SEARCHCHILD, m_tp, st, 0);
         	}
         }

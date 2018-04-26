@@ -1,3 +1,99 @@
-.sv-searchthumb {
+/*************/
+/* MINIATURA */
+/*************/
+.sv-searchthumb-vbox {
 	-fx-alignment: center ;
 }
+
+.sv-searchthumb-imageview {
+	
+}
+
+/*********/
+/* CLASE */
+/*********/
+/** SLIDER **/
+.sv-slider {
+	
+}
+
+.sv-slider .thumb {
+	-fx-background-color: green;
+	-fx-padding: 40px;
+	-fx-pref-height: 20px;
+	-fx-pref-width: 20px;
+	-fx-border-color: white;
+	-fx-border-width: 5px;
+	-fx-border-style: solid;
+	-fx-border-radius: 10px;
+}
+
+.sv-slider .track {
+	-fx-background-color: green;
+	-fx-control-inner-background: green;
+}
+
+/** SCROLLPANE **/
+.sv-scrollpane {
+	-fx-background-color: transparent;
+}
+.sv-scrollpane > .viewport {
+   -fx-background-color: transparent;
+}
+.sv-scrollpane .scroll-bar:horizontal ,
+.sv-scrollpane  .scroll-bar:vertical{
+    -fx-background-color:transparent;
+}
+
+.sv-scrollpane .scroll-bar:horizontal .thumb,
+.sv-scrollpane .scroll-bar:vertical .thumb {
+    -fx-background-color:green;
+	/*-fx-background-insets: 0, 0, 0;*/
+	/*-fx-background-radius: 0em;*/
+}
+
+.sv-scrollpane .scroll-bar:horizontal .track ,
+.sv-scrollpane .scroll-bar:vertical .track{
+     -fx-background-color: transparent;
+}
+
+/* The increment and decrement button CSS class of scrollbar */
+.sv-scrollpane .increment-button , .sv-scrollpane .decrement-button {
+    -fx-background-color:transparent;
+}
+
+.sv-scrollpane  .scroll-bar .increment-arrow,
+.sv-scrollpane  .scroll-bar .decrement-arrow {
+	-fx-shape: " ";
+	-fx-padding:12px; /* Tamaño del slider */
+}
+
+/** OTHER **/
+.sv-tilepane {
+	-fx-background-color: transparent;
+	-fx-alignment: center ;
+	-fx-hgap: 5px;
+	-fx-vgap: 5px;
+}
+
+.sv-tophbox {
+	-fx-alignment: center ;
+}
+
+.sv-rootVbox {
+	-fx-background-color: rgba(0,0,0,0.8);
+	-fx-padding: 20px 0.0px 0.0px 0px ;
+}
+
+.sv-closebutton {
+	-fx-font-size: 12pt;
+	-fx-background-color: transparent ;
+	-fx-background-radius: 5px;
+	-fx-text-fill: green;
+	-fx-border-width: 3px;
+	-fx-border-color: green;
+	-fx-border-radius: 5px;
+	-fx-focus-color: transparent;
+	-fx-faint-focus-color: transparent;
+}
+

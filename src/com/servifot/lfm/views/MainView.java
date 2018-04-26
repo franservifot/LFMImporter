@@ -22,6 +22,7 @@ import com.servifot.lfm.utils.ImageOrientation;
 import com.servifot.lfm.utils.JPEGMetadata;
 import com.servifot.lfm.utils.LFMUtils;
 import com.servifot.lfm.views.ConfigView.ConfigViewListener;
+import com.servifot.lfm.views.SearchView.SearchViewListener;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -39,7 +40,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 
-public class MainView extends View implements ThumbnailWidgetListener, WifiSDConectorListener, LFMImporterListener, ConfigViewListener {
+public class MainView extends View implements ThumbnailWidgetListener, WifiSDConectorListener, LFMImporterListener, ConfigViewListener, SearchViewListener {
 	private static final String CSS_NAME = "MainView";
 	/** Contenedor de la imagen principal */
 	private ImageView m_mainView = null;
@@ -54,12 +55,9 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 	/** Indica si se debe denter cualquier bucle */
 	private boolean m_die = false;
 
-	private static final int IV_WIDTH = LFMImporter.SCREEN_WIDTH-50;
-	private static final int IV_HEIGHT = LFMImporter.SCREEN_HEIGHT-(LFMImporter.SCREEN_THUMBS_HEIGHT+50);
+	private static final double IV_WIDTH = LFMImporter.SCREEN_WIDTH-50;
+	private static final double IV_HEIGHT = LFMImporter.SCREEN_HEIGHT-(LFMImporter.SCREEN_THUMBS_HEIGHT+50);
 
-
-	/** Rotación actual de la imagen */
-	private int m_rotation = 0;
 	/** Hilo que se conecta al wifi de la SD */
 	private WifiSDConector m_wifiConector = null;
 	/** Hilo que gestiona la impresión de una carpeta */
@@ -140,6 +138,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 			public void handle(ActionEvent event) {
 				SearchView sv = new SearchView(LFMImporter.getConfig().getCameraFolder());
 				sv.setBackView(MainView.this);
+				sv.setListener(MainView.this);
 				emitAddView(sv);
 			}
 		});
@@ -196,17 +195,12 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 				switch (meta.getOrientation().toString()) {
 				case ImageOrientation.VALUE_DOWN:
 					m_mainView.setRotate(180);
-					//source = SwingFXUtils.toFXImage((LFMUtils.getRotatedImage(ImageIO.read(file), 180)), null);
 					break;
 				case ImageOrientation.VALUE_LEFT:
 					m_mainView.setRotate(90);
-					//source = SwingFXUtils.toFXImage((LFMUtils.getRotatedImage(ImageIO.read(file), 90)), null);
-					//m_mainView.setFitHeight(IV_WIDTH);
-					//m_mainView.setFitWidth(IV_HEIGHT);
 					break;
 				case ImageOrientation.VALUE_RIGHT:
 					m_mainView.setRotate(270);
-					//source = SwingFXUtils.toFXImage((LFMUtils.getRotatedImage(ImageIO.read(file), 270)), null);
 					break;
 				default:
 					m_mainView.setRotate(0);
@@ -335,7 +329,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 	private void addImagesRecursively(File[] f, ArrayList<File> jpgs) {
 		if (f == null) {
 			System.err.println("f es null");
-			m_importingError = true;
+			//m_importingError = true;
 			return;
 		}
 		for (File file : f) {
@@ -397,14 +391,13 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 	private void stopPrinter() {
 		if (m_folderprinter != null) {
 			m_folderprinter.kill();
-
 		}
 		m_folderprinter = null;
 	}
 
 	@Override
 	public void onLoad() {
-		//startWifi(false);
+		startWifi(false);
 		startPrinter();
 	}
 
@@ -423,6 +416,11 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		stopPrinter();
 		startPrinter();
 
+	}
+
+	@Override
+	public void onSearchThumbSelect(File f) {
+		selectImage(f);		
 	}
 
 }
