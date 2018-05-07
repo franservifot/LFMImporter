@@ -69,7 +69,7 @@ public class ImagePrinter extends Thread {
 
 			g.drawImage(maskimage, (int)dest.getX(), (int)dest.getY(), (int)dest.getWidth(), (int)dest.getHeight(), 0, 0, maskimage.getWidth(), maskimage.getHeight(), null);
 
-			ImageIO.write(combined, "jpg", destFile);
+			ImageIO.write(combined, "png", new File(destFile.getParent() +"/"+ FileUtils.removeExtension(destFile.getName()) + ".png"));
 
 		} catch (IOException e) {
 			e.printStackTrace();
