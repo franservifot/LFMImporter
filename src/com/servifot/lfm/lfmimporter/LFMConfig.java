@@ -18,15 +18,15 @@ import javafx.print.Printer;
 /**
  * Esta clase carga, guarda y administra la configuración del programa durante
  * su ejecución.
- * 
+ *
  * Necesita de un archivo ini para funcionar.
  * El archivo ini tiene [Secciones] y parejas de Clave=Valor
- * 
+ *
  * @author FRANCESC
  *
  */
 public class LFMConfig {
-	
+
 	// CARPETAS
 	/** Carpeta de configuracion */
 	private String m_configFile = "";
@@ -36,11 +36,15 @@ public class LFMConfig {
 	private String m_printerFolder = LFMImporter.USER_PRINTERFOLDER;
 	/** Carpeta desde donde sacar las fotos */
 	private String m_sourceFolder = "\\\\flashair\\DavWWWRoot\\";
-	
+
 	// IMPRESORAS
 	/** Impresora para imprimir */
 	private String m_printer = getCanonPrinter();
-	
+	/** Máscara que se superpone a las imágenes verticales para imprimir */
+	private String m_vmaskpath = "";
+	/** Máscara que se superpone a las imágenes horizontales para imprimir */
+	private String m_hmaskpath = "";
+
 	// WIFI
 	/** Interfaz que se usa para buscar redes disponibles (Se apaga y enciende) */
 	private String m_searchInterface = "Wi-Fi";
@@ -50,20 +54,20 @@ public class LFMConfig {
 	private String m_wifiSDSSID = "flashair";
 	/** Interfaz que se usa para conectarse a la tarjeta SD */
 	private String m_conectSDInterface = "Wi-Fi";
-	
+
 	/**
 	 * Ruta del archivo de configuración
-	 * 
+	 *
 	 * @param path
 	 */
 	public LFMConfig(String path) {
 		m_configFile = path;
 		load(path);
 	}
-	
+
 	/**
 	 * Carga y mantiene en memoria la información de la configuración
-	 * 
+	 *
 	 * @param path
 	 */
 	private void load(String path) {
@@ -74,27 +78,29 @@ public class LFMConfig {
 		}
 		try {
 			IniParser ini = new IniParser(path, Charset.forName("UTF-8"));
-			
+
 			// Cargamos los datos
 			m_cameraFolder = ini.getString("Settings", "cameraFolder", m_cameraFolder);
 			m_printerFolder = ini.getString("Settings", "printerFolder", m_printerFolder);
 			m_sourceFolder = ini.getString("Settings", "sourceFolder", m_sourceFolder);
-			
+
 			m_printer = ini.getString("Printer", "printer", m_printer);
-			
+			m_vmaskpath = ini.getString("Printer", "vmaskPath", m_vmaskpath);
+			m_hmaskpath = ini.getString("Printer", "hmaskPath", m_hmaskpath);
+
 			m_searchInterface = ini.getString("Wifi", "searchInterface", m_searchInterface);
 			m_wifiSDName = ini.getString("Wifi", "wifiSDName", m_wifiSDName);
 			m_wifiSDSSID = ini.getString("Wifi", "wifiSDSSID", m_wifiSDSSID);
 			m_conectSDInterface = ini.getString("Wifi", "conectSDInterface", m_conectSDInterface);
-			
+
 		} catch (Exception e) {
 			System.err.println("Error cargando la configuración" + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Guarda la configuración actual
-	 * 
+	 *
 	 * @return <code>true</code> si todo va bien <code>false</code> en caso contrario
 	 */
 	public boolean save() {
@@ -103,38 +109,40 @@ public class LFMConfig {
 			if (!configFile.exists()) {
 				configFile.createNewFile();
 			}
-			
+
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile), Charset.forName("UTF-8")));
 			String br = System.lineSeparator();
-			
+
 			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			
+
 			out.write("#Configuración LFMImporter" + br);
 			out.write("#" + dateFormat.format(Calendar.getInstance().getTime()) + br + br);
-			
+
 			out.write(br);
 			out.write("[Settings]" + br);
 			out.write("cameraFolder=" + m_cameraFolder + br);
 			out.write("printerFolder=" + m_printerFolder + br);
 			out.write("sourceFolder=" + m_sourceFolder + br);
-			
+
 			out.write(br);
 			out.write("[Printer]" + br);
 			out.write("printer=" + m_printer + br);
-			
+			out.write("vmaskPath=" + m_vmaskpath + br);
+			out.write("hmaskPath=" + m_hmaskpath + br);
+
 			out.write(br);
 			out.write("[Wifi]" + br);
 			out.write("searchInterface=" + m_searchInterface + br);
 			out.write("wifiSDName=" + m_wifiSDName + br);
 			out.write("wifiSDSSID=" + m_wifiSDSSID + br);
 			out.write("conectSDInterface=" + m_conectSDInterface + br);
-			
+
 			out.close();
-			
+
 		} catch (Exception e) {
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -145,11 +153,11 @@ public class LFMConfig {
 	public void setCameraFolder(String cameraFolder) {
 		m_cameraFolder = cameraFolder;
 	}
-	
+
 	public void setPrinterFolder(String printerFolder) {
 		m_printerFolder = printerFolder;
 	}
-	
+
 	public String getPrinterFolder() {
 		return m_printerFolder;
 	}
@@ -161,13 +169,29 @@ public class LFMConfig {
 	public void setSourceFolder(String sourceFolder) {
 		m_sourceFolder = sourceFolder;
 	}
-	
+
 	public String getPrinter() {
 		return m_printer;
 	}
 
 	public void setPrinter(String printer) {
 		m_printer = printer;
+	}
+
+	public String getVMaskPath() {
+		return m_vmaskpath;
+	}
+
+	public void setVMaskPath(String maskpath) {
+		m_vmaskpath = maskpath;
+	}
+
+	public String getHMaskPath() {
+		return m_hmaskpath;
+	}
+
+	public void setHMaskPath(String maskpath) {
+		m_hmaskpath = maskpath;
 	}
 
 	public String getSearchInterface() {
@@ -209,12 +233,14 @@ public class LFMConfig {
 		}
 		return printers;
 	}
-	
+
 	public static String getCanonPrinter() {
-		for (Printer p : Printer.getAllPrinters()) { 
+		for (Printer p : Printer.getAllPrinters()) {
 			if (p.getName().toLowerCase().contains("selphy")) return p.getName();
 		}
 		return "";
 	}
+
+
 
 }

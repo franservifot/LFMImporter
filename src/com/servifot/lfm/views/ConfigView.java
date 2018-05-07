@@ -21,6 +21,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class ConfigView extends View {
@@ -66,7 +68,19 @@ public class ConfigView extends View {
 		selectPrinterCB.setValue(LFMImporter.getConfig().getPrinter());
 		HBox selectPrinterBox = new HBox(HSPACE, selectPrinterlbl, selectPrinterCB);
 
-		TitledPane printerTP = new TitledPane("Impresora", selectPrinterBox);
+		Label selectVMasklbl = new Label("Máscara Vertical: ");
+		TextField selectVMaskTf = new TextField(LFMImporter.getConfig().getVMaskPath());
+		Button selectVMaskBtn = new Button("Seleccionar");
+		HBox selectVMaskBox = new HBox(HSPACE, selectVMasklbl, selectVMaskTf, selectVMaskBtn);
+
+		Label selectHMasklbl = new Label("Máscara Horizontal: ");
+		TextField selectHMaskTf = new TextField(LFMImporter.getConfig().getHMaskPath());
+		Button selectHMaskBtn = new Button("Seleccionar");
+		HBox selectHMaskBox = new HBox(HSPACE, selectHMasklbl, selectHMaskTf, selectHMaskBtn);
+
+		VBox printerBox = new VBox(VSPACE, selectPrinterBox, selectVMaskBox, selectHMaskBox);
+
+		TitledPane printerTP = new TitledPane("Impresora", printerBox);
 		printerTP.setExpanded(false);
 
 		// WIFI
@@ -151,6 +165,7 @@ public class ConfigView extends View {
 		wifissidtf.getStyleClass().addAll("cv-tf", "cv-tf-wifissidtf");
 
 		// Implementamos funcionalidades
+		// Botón de cerrar
 		cancel.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -166,6 +181,8 @@ public class ConfigView extends View {
 				LFMImporter.getConfig().setSourceFolder(carpetaOrigentf.getText());
 
 				LFMImporter.getConfig().setPrinter(selectPrinterCB.getValue());
+				LFMImporter.getConfig().setVMaskPath(selectVMaskTf.getText());
+				LFMImporter.getConfig().setHMaskPath(selectHMaskTf.getText());
 
 				LFMImporter.getConfig().setSearchInterface(searchInterfazCb.getValue());
 				LFMImporter.getConfig().setWifiSDName(wifinametf.getText());
@@ -212,7 +229,7 @@ public class ConfigView extends View {
 				}
 			}
 		});
-
+		// Abre la carpeta donde caen las imágenes
 		carpetaImatgesOpenbtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -235,7 +252,7 @@ public class ConfigView extends View {
 				}
 			}
 		});
-
+		// Abre la carpeta donde caen las fotos
 		carpetaPrinterOpenbtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -243,6 +260,36 @@ public class ConfigView extends View {
 					Runtime.getRuntime().exec("explorer.exe " + (carpetaPrinterpathLbl.getText()).replaceAll("/", "\\\\"));
 				} catch (IOException e) {
 					e.printStackTrace();
+				}
+			}
+		});
+		// Selecciona el archivo que funciona como máscara
+		selectVMaskBtn.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
+				FileChooser maskfile = new FileChooser();
+				maskfile.setTitle("Seleccione la máscara vertical");
+				File currentmask = new File(LFMImporter.getConfig().getVMaskPath());
+				if (currentmask.exists()) maskfile.setInitialDirectory(currentmask.getParentFile());
+				maskfile.setSelectedExtensionFilter(new ExtensionFilter("PNG", "*.png", "*.PNG"));
+
+				File mask = maskfile.showOpenDialog(selectVMaskBtn.getScene().getWindow());
+				if (mask != null) {
+					selectVMaskTf.setText(mask.getAbsolutePath());
+				}
+			}
+		});
+		selectHMaskBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				FileChooser maskfile = new FileChooser();
+				maskfile.setTitle("Seleccione la máscara horizontal");
+				File currentmask = new File(LFMImporter.getConfig().getHMaskPath());
+				if (currentmask.exists()) maskfile.setInitialDirectory(currentmask.getParentFile());
+				maskfile.setSelectedExtensionFilter(new ExtensionFilter("PNG", "*.png", "*.PNG"));
+
+				File mask = maskfile.showOpenDialog(selectHMaskBtn.getScene().getWindow());
+				if (mask != null) {
+					selectHMaskTf.setText(mask.getAbsolutePath());
 				}
 			}
 		});

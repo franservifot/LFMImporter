@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import com.servifot.lfm.lfmimporter.FolderPrinter;
+import com.servifot.lfm.lfmimporter.ImagePrinter;
 import com.servifot.lfm.lfmimporter.LFMImporter;
 import com.servifot.lfm.lfmimporter.ThumbnailWidget;
 import com.servifot.lfm.lfmimporter.ThumbnailWidget.ThumbnailWidgetListener;
@@ -105,9 +106,12 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 
 		// Creamos la caja de los botones
 		Button editbtn = new Button("Edit");
+		Button printbtn = new Button("Print");
 		Button configbtn = new Button("Config");
 		Button searchbtn = new Button("Search");
+
 		editbtn.getStyleClass().addAll("mv-btn", "mv-btn-editbtn");
+		printbtn.getStyleClass().addAll("mv-btn", "mv-btn-print");
 		configbtn.getStyleClass().addAll("mv-btn", "mv-btn-configbtn");
 		searchbtn.getStyleClass().addAll("mv-btn", "mv-btn-searchbtn");
 
@@ -119,6 +123,12 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+			}
+		});
+
+		printbtn.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
+				print(m_currentFile);
 			}
 		});
 
@@ -143,9 +153,11 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 			}
 		});
 
-
-
-		VBox btnsBox = new VBox(editbtn, searchbtn, configbtn);
+		HBox firstrowbtnsbox = new HBox(printbtn, editbtn);
+		firstrowbtnsbox.getStyleClass().add("mb-btnsBox-first");
+		HBox secondrowbtnsbox = new HBox(searchbtn, configbtn);
+		secondrowbtnsbox.getStyleClass().add("mb-btnsBox-second");
+		VBox btnsBox = new VBox(firstrowbtnsbox, secondrowbtnsbox);
 		btnsBox.getStyleClass().add("mv-btnsBox");
 
 		HBox botBox = new HBox(thumbsScrollPane, btnsBox);
@@ -156,6 +168,17 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 		rootpane.setBottom(botBox);
 		rootpane.getStyleClass().add("mv-rootpane");
 		return rootpane;
+	}
+
+	/**
+	 * Arranca un hilo que imprime una imagen
+	 *
+	 * @param currentFile
+	 */
+	protected void print(File currentFile) {
+		ImagePrinter ip = new ImagePrinter(currentFile);
+		ip.start();
+
 	}
 
 	private void fillThumbsPane(TilePane thumbsPane, String folder) {
@@ -420,7 +443,7 @@ public class MainView extends View implements ThumbnailWidgetListener, WifiSDCon
 
 	@Override
 	public void onSearchThumbSelect(File f) {
-		selectImage(f);		
+		selectImage(f);
 	}
 
 }

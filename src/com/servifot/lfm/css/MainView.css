@@ -26,13 +26,23 @@
 	-fx-background-color: black;
 	-fx-padding: 8px 8px 0px 8px;
 }
-
+/***************/
+/* BOTONES BOX */
+/***************/
 .mv-btnsBox {/* Buttons box */
 	-fx-spacing: 10px; /* Distancia entre los botones */
 	-fx-alignment: center ;
-	-fx-min-width: 100px ;
-	-fx-max-width: 100px ;
-	-fx-pref-width: 100px ;
+	-fx-min-width: 200px ;
+	-fx-max-width: 200px ;
+	-fx-pref-width: 200px ;
+}
+.mb-btnsBox-first {
+	-fx-alignment: center ;
+	-fx-spacing: 10px; /* Distancia entre los botones */
+}
+.mb-btnsBox-second {
+	-fx-alignment: center ;
+	-fx-spacing: 10px; /* Distancia entre los botones */
 }
 /***********/
 /* BOTONES */
@@ -51,6 +61,9 @@
 }
 .mv-btn-editbtn {
 	-fx-padding: 4px 18px 4px 18px;
+}
+.mv-btn-print {
+	-fx-padding: 4px 17px 4px 17px;
 }
 .mv-btn-searchbtn {
 
